@@ -7,16 +7,26 @@ This class contains methods relevant towards training
 a model
 '''
 class ModelTrainer:
-    def __innit__(self, ):
+    def __init__(self, ):
         hrir = InputProcessing.extractHRIR(3)
         anthro = InputProcessing.extractAnthro(3)
+<<<<<<< HEAD:src/network/train.py
         np.tile(anthro, (1250,1))
+=======
+        print("Before adding anthro")
+        for i in range(1249):
+            anthro = np.vstack((anthro, anthro))
+        print("added anthro")
+>>>>>>> 03b0dcbacd09d2195270d691f994b7d7c7f27a64:src/train.py
         pos = InputProcessing.extractPos(3)
         self.hrir_train,  self.hrir_test,  self.anthro_train,  self.anthro_test,  self.pos_train,  self.pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
 
-
     # Method to train the model
-    def trainModel(model, hrir_train, anthro_train, pos_train):
+    def trainModel(self, model):
+        # Get training data
+        hrir_train = self.hrir_train
+        anthro_train = self.anthro_train
+        pos_train = self.pos_train
         # Set loss function
         criterion = nn.CrossEntropyLoss()
         #Choose Adam Optimizer, learning rate
@@ -46,19 +56,27 @@ class ModelTrainer:
             optimizer.step()
 
     
-    def basicValidation(model, x_test, y_test):
+    def basicValidation(self, model):
+        # Get data
+        hrir_test = self.hrir_test
+        anthro_test = self.anthro_test
+        pos_test = self.pos_test
         ape = []
         criterion = nn.CrossEntropyLoss()
         with torch.no_grad():
-            y_eval = model.forward(x_test) # X-test are features from test se, y_eval s predictions
-            loss = criterion(y_eval,y_test) #find losee or error
-            print(loss)
+            anthro_eval, pos_eval = model.forward(hrir_test) # X-test are features from test se, y_eval s predictions
+            lossAnthro = criterion(anthro_eval, anthro_test) 
+            lossPos = criterion(pos_eval, pos_test) 
+            totalLoss = lossAnthro + lossPos #find losee or error
+            print(totalLoss)
             
-            for i, data in enumerate(x_test):
-                y_val = model.forward(data)
-                prediction = y_val.argmax().item()
-                per_err = (y_test[i] - prediction) /y_test[i]
-                ape.append(abs(per_err))
+            for i, data in enumerate(hrir_test):
+                y_anthro, y_pos = model.forward(data)
+                prediction_anthro = y_anthro.argmax().item()
+                per_err_anthro = (anthro_test[i] - prediction_anthro) /y_anthro[i]
+                prediction_pos = y_pos.argmax().item()
+                per_err_pos = (pos_test[i] - prediction_pos) /y_pos[i] 
+                ape.append(abs(per_err_anthro + per_err_pos))
             mape = sum(ape)/len(ape)
         return mape
     
