@@ -10,8 +10,7 @@ class ModelTrainer:
     def __innit__(self, ):
         hrir = InputProcessing.extractHRIR(3)
         anthro = InputProcessing.extractAnthro(3)
-        for i in range(1249):
-            anthro = np.vstack(anthro, anthro)
+        np.tile(anthro, (1250,1))
         pos = InputProcessing.extractPos(3)
         self.hrir_train,  self.hrir_test,  self.anthro_train,  self.anthro_test,  self.pos_train,  self.pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
 
