@@ -74,8 +74,12 @@ class ModelTrainer:
                 #prediction_anthro = y_anthro.argmax().item()
                 #per_err_anthro = (anthro_test[i] - prediction_anthro) /y_anthro[i]
                 prediction_pos = y_pos.argmax().item()
-                per_err_pos = (pos_test[i] - prediction_pos) /y_pos 
-                ape.append(abs(per_err_pos))
+                one_pos = pos_test[i]
+                per_err_pos = 0
+                for j in range(3):
+                    per_err_pos += abs((one_pos[j] - prediction_pos) /y_pos[j])
+                per_err_pos = per_err_pos/3
+                ape.append(per_err_pos)
             mape = sum(ape)/len(ape)
-        return mape
+        return float(mape)
     
