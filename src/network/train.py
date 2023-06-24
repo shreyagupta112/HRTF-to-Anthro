@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from sklearn.model_selection import train_test_split
 '''
 This class contains methods relevant towards training
 a model
@@ -10,7 +10,9 @@ class ModelTrainer:
     # Method to train the model
     def trainModel(self, epochs, model, optimizer, criterion, hrir_train, pos_train, anthro_train):
         
-        x_train, d_train, theta_train = self.deconstructAnthro(anthro_train)
+        X = self.deconstructAnthro(anthro_train)
+        y =  hrir_train
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=41)
         losses = []
         for i in range(epochs):
             # propgate forward
