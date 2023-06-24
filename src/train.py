@@ -13,12 +13,23 @@ class ModelTrainer:
         anthro = np.tile(anthro, (1250,1))
         pos = InputProcessing.extractPos(3)
         hrir_train,  hrir_test,  anthro_train,  anthro_test,  pos_train,  pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
-        self.hrir_train = torch.FloatTensor(hrir_train)
-        self.hrir_test = torch.FloatTensor(hrir_test)
-        self.anthro_train = torch.FloatTensor(anthro_train)
-        self.anthro_test = torch.FloatTensor(anthro_test)
-        self.pos_train = torch.FloatTensor(pos_train)
-        self.pos_test = torch.FloatTensor(pos_test)
+        hrir_train = torch.FloatTensor(hrir_train)
+        self.hrir_train = torch.nn.functional.normalize(hrir_train, p=2.0, dim = 1)
+
+        hrir_test = torch.FloatTensor(hrir_test)
+        self.hrir_test  = torch.nn.functional.normalize(hrir_test, p=2.0, dim = 1)
+
+        anthro_train = torch.FloatTensor(anthro_train)
+        self.anthro_train = torch.nn.functional.normalize(anthro_train, p=2.0, dim = 1)
+
+        anthro_test = torch.FloatTensor(anthro_test)
+        self.anthro_test = torch.nn.functional.normalize(anthro_test, p=2.0, dim = 1)
+
+        pos_train = torch.FloatTensor(pos_train)
+        self.pos_train = torch.nn.functional.normalize(pos_train, p=2.0, dim = 1)
+
+        pos_test = torch.FloatTensor(pos_test)
+        self.pos_test = torch.nn.functional.normalize(pos_test, p=2.0, dim = 1)
 
     # Method to train the model
     def trainModel(self, model):
@@ -31,7 +42,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 100
+        epochs = 300
         losses = []
         for i in range(epochs):
             # propgate forward
