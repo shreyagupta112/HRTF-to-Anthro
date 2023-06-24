@@ -14,7 +14,7 @@ class InputProcessing:
         
         return row
     
-    def extractPos(pos_idx, subject_num):
+    def extractPos(subject_num):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
