@@ -37,10 +37,5 @@ class InputProcessing:
             row = np.hstack((d, x, theta))
         return row
     
-    subject_number = 3
-    row_index = 0
-    hrir = extractRowFromHRIR(row_index, subject_number)
-    position = extractPos(row_index, subject_number)
-    anthro = extractAnthro(subject_number)
-    print(anthro)
+
         
