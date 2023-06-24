@@ -1,2 +1,5 @@
 # Data should be downloaded from cipic database
 data/cipic.hdf5
+
+#File is used for learning pytorch
+src/network/test.py
