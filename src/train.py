@@ -10,14 +10,7 @@ class ModelTrainer:
     def __init__(self, ):
         hrir = InputProcessing.extractHRIR(3)
         anthro = InputProcessing.extractAnthro(3)
-<<<<<<< HEAD:src/network/train.py
         np.tile(anthro, (1250,1))
-=======
-        print("Before adding anthro")
-        for i in range(1249):
-            anthro = np.vstack((anthro, anthro))
-        print("added anthro")
->>>>>>> 03b0dcbacd09d2195270d691f994b7d7c7f27a64:src/train.py
         pos = InputProcessing.extractPos(3)
         self.hrir_train,  self.hrir_test,  self.anthro_train,  self.anthro_test,  self.pos_train,  self.pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
 
