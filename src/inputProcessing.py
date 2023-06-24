@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 class InputProcessing:
-    def extractRowFromHRIR(subject_num):
+    def extractHRIR(subject_num):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -20,7 +20,8 @@ class InputProcessing:
 
         with h5py.File(file_path, "r") as f:
             dset = f[subject]['srcpos']['trunc_64']
-            row = np.array(dset[pos_idx, :])
+            #row = np.array(dset[pos_idx, :])
+            row = np.array(dset)
         
         return row
     
