@@ -2,7 +2,7 @@ import h5py
 import os
 import numpy as np
 
-class Input:
+class InputProcessing:
     def extractRowFromHRIR(pos_idx, subject_num):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
