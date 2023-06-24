@@ -29,12 +29,12 @@ class InputProcessing:
 
         with h5py.File(file_path, "r") as f:
             dset = f[subject]
-            d = np.array(dset.attrs['D'])
+            #assume the first 8 meaurements are for left ear
+            d = np.array(dset.attrs['D'])[:8]
             x = np.array(dset.attrs['X'])
-            theta = np.array(dset.attrs['theta'])
+            #assume the first 2 meaurements are for left ear
+            theta = np.array(dset.attrs['theta'])[:2]
             row = np.hstack((d, x, theta))
-            
-        
         return row
     
     subject_number = 3
