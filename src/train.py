@@ -10,16 +10,15 @@ class ModelTrainer:
     def __init__(self, ):
         hrir = InputProcessing.extractHRIR(3)
         anthro = InputProcessing.extractAnthro(3)
-<<<<<<< HEAD:src/network/train.py
-        np.tile(anthro, (1250,1))
-=======
-        print("Before adding anthro")
-        for i in range(1249):
-            anthro = np.vstack((anthro, anthro))
-        print("added anthro")
->>>>>>> 03b0dcbacd09d2195270d691f994b7d7c7f27a64:src/train.py
+        anthro = np.tile(anthro, (1250,1))
         pos = InputProcessing.extractPos(3)
-        self.hrir_train,  self.hrir_test,  self.anthro_train,  self.anthro_test,  self.pos_train,  self.pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
+        hrir_train,  hrir_test,  anthro_train,  anthro_test,  pos_train,  pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
+        self.hrir_train = torch.FloatTensor(hrir_train)
+        self.hrir_test = torch.FloatTensor(hrir_test)
+        self.anthro_train = torch.FloatTensor(anthro_train)
+        self.anthro_test = torch.FloatTensor(anthro_test)
+        self.pos_train = torch.FloatTensor(pos_train)
+        self.pos_test = torch.FloatTensor(pos_test)
 
     # Method to train the model
     def trainModel(self, model):
@@ -67,16 +66,16 @@ class ModelTrainer:
             anthro_eval, pos_eval = model.forward(hrir_test) # X-test are features from test se, y_eval s predictions
             lossAnthro = criterion(anthro_eval, anthro_test) 
             lossPos = criterion(pos_eval, pos_test) 
-            totalLoss = lossAnthro + lossPos #find losee or error
+            totalLoss = lossAnthro + lossPos #find loss or error
             print(totalLoss)
             
             for i, data in enumerate(hrir_test):
                 y_anthro, y_pos = model.forward(data)
-                prediction_anthro = y_anthro.argmax().item()
-                per_err_anthro = (anthro_test[i] - prediction_anthro) /y_anthro[i]
+                #prediction_anthro = y_anthro.argmax().item()
+                #per_err_anthro = (anthro_test[i] - prediction_anthro) /y_anthro[i]
                 prediction_pos = y_pos.argmax().item()
-                per_err_pos = (pos_test[i] - prediction_pos) /y_pos[i] 
-                ape.append(abs(per_err_anthro + per_err_pos))
+                per_err_pos = (pos_test[i] - prediction_pos) /y_pos 
+                ape.append(abs(per_err_pos))
             mape = sum(ape)/len(ape)
         return mape
     
