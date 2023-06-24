@@ -8,8 +8,13 @@ a model
 class ModelTrainer:
 
     # Method to train the model
-    def trainModel(self, epochs, model, optimizer, criterion, hrir_train, anthro_train, pos_train):
-        
+    def trainModel(model, hrir_train, anthro_train, pos_train):
+        # Set loss function
+        criterion = nn.CrossEntropyLoss()
+        #Choose Adam Optimizer, learning rate
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+        #Set iterations
+        epochs = 100
         losses = []
         for i in range(epochs):
             # propgate forward
