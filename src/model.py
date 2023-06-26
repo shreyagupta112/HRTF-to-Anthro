@@ -7,7 +7,7 @@ import torch.nn.functional as F
 This class represents the model architecture used for 
 this simple model
 
-Two input vectors:
+One input vectors:
     HRIR of left ear: 1 X 200
 
 Output Vectors:

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 from inputProcessing import *
 '''
 This class contains methods relevant towards training
@@ -64,6 +65,10 @@ class ModelTrainer:
             optimizer.zero_grad()
             totalLoss.backward()
             optimizer.step()
+        plt.plot(range(epochs), losses)
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.savefig('../error.png')
 
     
     def basicValidation(self, model):
@@ -71,7 +76,8 @@ class ModelTrainer:
         hrir_test = self.hrir_test
         anthro_test = self.anthro_test
         pos_test = self.pos_test
-        ape = []
+        pos_ape = []
+        anthro_ape = []
         criterion = nn.CrossEntropyLoss()
         with torch.no_grad():
             anthro_eval, pos_eval = model.forward(hrir_test) # X-test are features from test se, y_eval s predictions
@@ -82,15 +88,23 @@ class ModelTrainer:
             
             for i, data in enumerate(hrir_test):
                 y_anthro, y_pos = model.forward(data)
-                #prediction_anthro = y_anthro.argmax().item()
-                #per_err_anthro = (anthro_test[i] - prediction_anthro) /y_anthro[i]
+                prediction_anthro = y_anthro.argmax().item()
+                one_anthro = anthro_test[i]
+                per_err_anthro = 0
+                for j in range(27):
+                    per_err_anthro += abs((one_anthro[j] - prediction_anthro) /y_anthro[j])
+                per_err_anthro = per_err_anthro/27
+                anthro_ape.append(per_err_anthro)
+                
                 prediction_pos = y_pos.argmax().item()
                 one_pos = pos_test[i]
                 per_err_pos = 0
                 for j in range(3):
                     per_err_pos += abs((one_pos[j] - prediction_pos) /y_pos[j])
                 per_err_pos = per_err_pos/3
-                ape.append(per_err_pos)
-            mape = sum(ape)/len(ape)
-        return float(mape)
+                pos_ape.append(per_err_pos)
+
+            pos_mape = sum(pos_ape)/len(pos_ape)
+            anthro_mape = sum(anthro_ape)/len(anthro_ape)
+        return float(pos_mape), float(anthro_mape)
     
