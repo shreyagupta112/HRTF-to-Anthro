@@ -65,10 +65,12 @@ class ModelTrainer:
             optimizer.zero_grad()
             totalLoss.backward()
             optimizer.step()
+        # Plot losses
+        trainLoss = plt.figure()
         plt.plot(range(epochs), losses)
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
-        plt.savefig('../error.png')
+        trainLoss.savefig('../figures/error.png')
 
     
     def basicValidation(self, model):
@@ -96,6 +98,8 @@ class ModelTrainer:
                 per_err_anthro = per_err_anthro/27
                 anthro_ape.append(per_err_anthro)
                 
+
+
                 prediction_pos = y_pos.argmax().item()
                 one_pos = pos_test[i]
                 per_err_pos = 0
@@ -104,6 +108,21 @@ class ModelTrainer:
                 per_err_pos = per_err_pos/3
                 pos_ape.append(per_err_pos)
 
+            # plot the average anthro error across each hrir
+            anthroError = plt.figure()
+            plt.plot(range(len(anthro_ape)), anthro_ape)
+            plt.ylabel("Error")
+            plt.xlabel("HRIR")
+            anthroError.savefig("../figures/anthro_error.png")
+
+            #plot the average position error across each hrir
+            posError = plt.figure()
+            plt.plot(range(len(pos_ape)), pos_ape)
+            plt.ylabel("Error")
+            plt.xlabel("HRIR")
+            posError.savefig("../figures/pos_error.png")
+
+            # average error across all test datasets
             pos_mape = sum(pos_ape)/len(pos_ape)
             anthro_mape = sum(anthro_ape)/len(anthro_ape)
         return float(pos_mape), float(anthro_mape)
