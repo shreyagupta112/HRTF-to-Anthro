@@ -21,12 +21,16 @@ class ModelTrainer:
         self.hrir_test  = torch.nn.functional.normalize(hrir_test, p=2.0, dim = 1)
 
         anthro_train = torch.FloatTensor(anthro_train)
+        self.anthro_mean = torch.mean(anthro_train)
+        self.anthro_std = torch.std(anthro_train)
         self.anthro_train = torch.nn.functional.normalize(anthro_train, p=2.0, dim = 1)
 
         anthro_test = torch.FloatTensor(anthro_test)
         self.anthro_test = torch.nn.functional.normalize(anthro_test, p=2.0, dim = 1)
 
         pos_train = torch.FloatTensor(pos_train)
+        self.pos_mean = torch.mean(pos_train)
+        self.pos_std = torch.std(pos_train)
         self.pos_train = torch.nn.functional.normalize(pos_train, p=2.0, dim = 1)
 
         pos_test = torch.FloatTensor(pos_test)
