@@ -1,5 +1,5 @@
 # The Network
 
-This folder contains the src code to run the network.
+This folder contains the neural network source code
 
-TODO: ADD instructions on how to run network here
+Run network by typingthe command `python src/main.py`

@@ -1,5 +1,5 @@
 from model import *
-from train import *
+from train_and_validate import *
 from inputProcessing import *
 import torch
 import numpy as np

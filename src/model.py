@@ -11,7 +11,7 @@ One input vectors:
     HRIR of left ear: 1 X 200
 
 Output Vectors:
-    Anthro Measurements: 27 x 1
+    Left-Ear-Only Anthro Measurements: 27 x 1 
     Position vector: 1 X 3
 
 '''

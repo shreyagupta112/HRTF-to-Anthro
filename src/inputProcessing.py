@@ -14,7 +14,7 @@ class InputProcessing:
         
         return row
     
-    # return an array representing the 3-coordinate position from a single subject
+    # return an array representing the positions of a single subject
     def extractPos(subject_num):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
