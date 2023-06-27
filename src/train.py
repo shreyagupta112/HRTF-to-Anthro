@@ -10,7 +10,7 @@ a model
 class ModelTrainer:
     def __init__(self, ):
         hrir = InputProcessing.extractHRIR(3)
-        anthro = InputProcessing.extractAnthro(3)
+        anthro = InputProcessing.extractAnthro(3, True)
         anthro = np.tile(anthro, (1250,1))
         pos = InputProcessing.extractPos(3)
         hrir_train,  hrir_test,  anthro_train,  anthro_test,  pos_train,  pos_test = train_test_split(hrir, anthro, pos, test_size=0.2, random_state=41)
