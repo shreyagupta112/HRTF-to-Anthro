@@ -57,7 +57,6 @@ class ModelTrainer:
             #Keep track of losses
             losses.append(totalLoss.detach().numpy())
 
-            #print every 10 epochs
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {totalLoss}')
             
@@ -70,6 +69,8 @@ class ModelTrainer:
         plt.plot(range(epochs), losses)
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
+        plt.title("Training Loss")
+        plt.ylim(-30, 15)
         trainLoss.savefig('../figures/error.png')
 
     
@@ -113,6 +114,7 @@ class ModelTrainer:
             plt.plot(range(len(anthro_ape)), anthro_ape)
             plt.ylabel("Error")
             plt.xlabel("HRIR")
+            plt.title("Error In Anthro Measurement Predictions")
             anthroError.savefig("../figures/anthro_error.png")
 
             #plot the average position error across each hrir
@@ -120,6 +122,7 @@ class ModelTrainer:
             plt.plot(range(len(pos_ape)), pos_ape)
             plt.ylabel("Error")
             plt.xlabel("HRIR")
+            plt.title("Error in Position Measurment Predictions")
             posError.savefig("../figures/pos_error.png")
 
             # average error across all test datasets
