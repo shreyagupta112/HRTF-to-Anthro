@@ -43,7 +43,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 300
+        epochs = 80
         losses = []
         for i in range(epochs):
             # propgate forward
@@ -51,17 +51,17 @@ class ModelTrainer:
 
             #calculate loss
             lossAnthro = criterion(anthro_pred, anthro_train) 
-            totalLoss = lossAnthro
 
             #Keep track of losses
-            losses.append(totalLoss.detach().numpy())
+            losses.append(lossAnthro.detach().numpy())
 
             if i % 10 == 0:
-                print(f'Epoch: {i} and loss: {totalLoss}')
+                print(f'Epoch: {i} and loss: {lossAnthro}')
+                print(f'Total loss {lossAnthro}')
             
             #Do some backward propagation
             optimizer.zero_grad()
-            totalLoss.backward()
+            lossAnthro.backward()
             optimizer.step()
         # Plot losses
         trainLoss = plt.figure()

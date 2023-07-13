@@ -33,20 +33,16 @@ class Main:
             # Make prediction
             anthro_pred = self.model.forward(input_normal)
 
-            # Reverse the normalization
-            reversed_normal_anthro = []
-            for tensor in anthro_pred:
-                reversed_vector = (tensor * self.trainer.hrirPos_std) + self.trainer.hrirPos_mean
-                reversed_normal_anthro.append(reversed_vector)
-            
-            #Find the average predictions across all hrirs
-            anthroPrediction = torch.mean(torch.stack(reversed_normal_anthro), dim=0).tolist()
+            # reverse normalization
+            anthro_pred = (anthro_pred * self.trainer.anthro_std) + self.trainer.anthro_mean
 
-            return anthroPrediction
+            anthro_pred = torch.mean(anthro_pred, dim=0)
+            
+            return anthro_pred
             
         
 
-    
+
 main = Main()
 main.trainAndTest()
 anthroPred = main.predictAnthro(3)
