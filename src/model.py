@@ -8,11 +8,14 @@ This class represents the model architecture used for
 this simple model
 
 One input vectors:
-    HRIR of left ear: 1 X 200
-
+    HRIR of left ear: 1 X 64
+    
+    Todo: Concantenate position vector
 Output Vectors:
     Left-Ear-Only Anthro Measurements: 27 x 1 
     Position vector: 1 X 3
+
+    Todo: Output anthro should only be ear measurements not all anthro measurements
 
 '''
 

@@ -42,7 +42,7 @@ class ModelTrainer:
         anthro_train = self.anthro_train
         pos_train = self.pos_train
         # Set loss function
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.MSELoss()
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
@@ -73,7 +73,6 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        plt.ylim(-30, 15)
         trainLoss.savefig('../figures/error.png')
 
     
