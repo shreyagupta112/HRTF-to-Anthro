@@ -45,20 +45,24 @@ class ModelTrainer:
         #Set iterations
         epochs = 80
         losses = []
+        indivLosses = []
         for i in range(epochs):
             # propgate forward
             anthro_pred = model.forward(X_train)
 
             #calculate loss
-            lossAnthro = criterion(anthro_pred, anthro_train) 
+            lossAnthro = criterion(anthro_pred, anthro_train)
+
+            #calculate individual losses
+            mse = nn.functional.mse_loss(anthro_pred, anthro_train, reduction='none')
+            indivLosses.append(mse.detach().numpy())
 
             #Keep track of losses
             losses.append(lossAnthro.detach().numpy())
 
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {lossAnthro}')
-                print(f'Total loss {lossAnthro}')
-            
+                
             #Do some backward propagation
             optimizer.zero_grad()
             lossAnthro.backward()
@@ -70,7 +74,6 @@ class ModelTrainer:
         plt.xlabel("Epoch")
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
-
     
     def basicValidation(self, model):
         # Get data
