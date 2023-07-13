@@ -22,37 +22,32 @@ class Main:
         print(mape)
 
     # This method will make a prediction given a subject
-    def predictAnthroPos(self, subject):
+    def predictAnthro(self, subject):
         hrir = InputProcessing.extractHRIR(subject)
-        hrir = torch.FloatTensor(hrir)
-        hrir_normal = torch.nn.functional.normalize(hrir, p=2.0, dim=1)
+        pos = InputProcessing.extractPos(subject)
+        hrir_pos = np.hstack((hrir, pos))
+        input = torch.FloatTensor(hrir_pos)
+        input_normal = (input - self.trainer.hrirPos_mean) / (self.trainer.hrirPos_std)
+        
         with torch.no_grad():
             # Make prediction
-            anthro_pred, pos_pred = self.model.forward(hrir_normal)
-            
+            anthro_pred = self.model.forward(input_normal)
+
             # Reverse the normalization
             reversed_normal_anthro = []
             for tensor in anthro_pred:
-                lp_norm = np.linalg.norm(tensor, 2)
-                reversed_vector = tensor * (1.0/lp_norm)
+                reversed_vector = (tensor * self.trainer.hrirPos_std) + self.trainer.hrirPos_mean
                 reversed_normal_anthro.append(reversed_vector)
-
-            reversed_normal_pos = []
-            for tensor in pos_pred:
-                lp_norm = np.linalg.norm(tensor, 2)
-                reversed_vector = tensor * (1.0/lp_norm)
-                reversed_normal_pos.append(reversed_vector)
             
             #Find the average predictions across all hrirs
             anthroPrediction = torch.mean(torch.stack(reversed_normal_anthro), dim=0).tolist()
-            posPrediction = torch.mean(torch.stack(reversed_normal_pos), dim=0).tolist()
 
-            return anthroPrediction, posPrediction
+            return anthroPrediction
             
+        
 
     
 main = Main()
 main.trainAndTest()
-anthroPred, posPred = main.predictAnthroPos(3)
+anthroPred = main.predictAnthro(3)
 print(anthroPred)
-print(posPred)

@@ -35,14 +35,12 @@ class InputProcessing:
             if just_left_ear == True:
                 # assume the first 8 meaurements are for left ear
                 ear = np.array(dset.attrs['D'])[:8]
-                head_torso = np.array(dset.attrs['X'])
                 # assume the first 2 meaurements are for left ear
                 pinna = np.array(dset.attrs['theta'])[:2]
             else:
                 ear = np.array(dset.attrs['D'])
-                head_torso = np.array(dset.attrs['X'])
                 pinna = np.array(dset.attrs['theta'])
-            row = np.hstack((ear, head_torso, pinna))
+            row = np.hstack((ear, pinna))
         return row
     
 

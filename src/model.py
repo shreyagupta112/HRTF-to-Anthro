@@ -8,30 +8,25 @@ This class represents the model architecture used for
 this simple model
 
 One input vectors:
-    HRIR of left ear: 1 X 64
+    HRIR of left ear + Src Position: 1 X 67
     
-    Todo: Concantenate position vector
 Output Vectors:
-    Left-Ear-Only Anthro Measurements: 27 x 1 
-    Position vector: 1 X 3
-
-    Todo: Output anthro should only be ear measurements not all anthro measurements
+    Left-Ear-Only Anthro Measurements: 10 X 1
 
 '''
 
 class Model(nn.Module):
 
     def __init__(self, 
-                 hrir=64, 
+                 hrir_pos=67, 
                  h1=10, h2=15, h3=10, 
-                 anthro=27, pos=3):
+                 ear_anthro=10):
         super().__init__() # instantiate our nn.Module
         #Connect model
-        self.fc1 = nn.Linear(hrir, h1)
+        self.fc1 = nn.Linear(hrir_pos, h1)
         self.fc2 = nn.Linear(h1, h2)
         self.fc3 = nn.Linear(h2, h3)
-        self.fc_output1 = nn.Linear(h3, anthro)
-        self.fc_output2 = nn.Linear(h3, pos)
+        self.fc_output = nn.Linear(h3, ear_anthro)
     
     # Function to propagate forward
     def forward(self, hrir_l):
@@ -40,10 +35,9 @@ class Model(nn.Module):
         layer2 = F.relu(self.fc2(layer1))
         layer3 = F.relu(self.fc3(layer2))
 
-        Anthro = self.fc_output1(layer3)
-        Pos = self.fc_output2(layer3)
+        Ear_Anthro = self.fc_output(layer3)
 
-        return Anthro, Pos
+        return Ear_Anthro
 
 
 
