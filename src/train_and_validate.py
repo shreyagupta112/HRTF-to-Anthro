@@ -79,8 +79,7 @@ class ModelTrainer:
         # Get data
         X_test = self.X_test
         anthro_test = self.anthro_test
-        anthro_ape = []
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.MSELoss()
         with torch.no_grad():
             anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
             lossAnthro = criterion(anthro_eval, anthro_test) 
@@ -88,27 +87,15 @@ class ModelTrainer:
             mse = [0]* 10
             print(totalLoss)
             
+            # Calculate mean squared error
             for i, data in enumerate(X_test):
                 # find the percentage error in all anthropometric data outputs
                 y_anthro = model.forward(data)
-                print(y_anthro)
-                prediction_anthro = y_anthro.argmax().item()
                 one_anthro = anthro_test[i]
-                per_err_anthro = 0
                 for j in range(10):
-                    mse[j] += abs((one_anthro[j] - prediction_anthro) /y_anthro[j])
-                per_err_anthro = per_err_anthro/27
-                anthro_ape.append(per_err_anthro)
-
-            # plot the average anthro error across each hrir
-            anthroError = plt.figure()
-            plt.plot(range(len(anthro_ape)), anthro_ape)
-            plt.ylabel("Error")
-            plt.xlabel("HRIR")
-            plt.title("Error In Anthro Measurement Predictions")
-            anthroError.savefig("../figures/anthro_error.png")
-
-            # average error across all test datasets
-            anthro_mape = sum(anthro_ape)/len(anthro_ape)
-        return float(anthro_mape)
+                    mse[j] += (one_anthro[j] - y_anthro[j])**2
+            for i in range(10):
+                mse[j] *= (1/10)
+            # plot the mse for each anthropometric data point
+        return mse
     
