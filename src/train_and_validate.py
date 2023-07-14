@@ -85,16 +85,18 @@ class ModelTrainer:
             anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
             lossAnthro = criterion(anthro_eval, anthro_test) 
             totalLoss = lossAnthro #find loss or error
+            mse = [0]* 10
             print(totalLoss)
             
             for i, data in enumerate(X_test):
                 # find the percentage error in all anthropometric data outputs
                 y_anthro = model.forward(data)
+                print(y_anthro)
                 prediction_anthro = y_anthro.argmax().item()
                 one_anthro = anthro_test[i]
                 per_err_anthro = 0
                 for j in range(10):
-                    per_err_anthro += abs((one_anthro[j] - prediction_anthro) /y_anthro[j])
+                    mse[j] += abs((one_anthro[j] - prediction_anthro) /y_anthro[j])
                 per_err_anthro = per_err_anthro/27
                 anthro_ape.append(per_err_anthro)
 
