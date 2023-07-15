@@ -70,7 +70,7 @@ class ModelTrainer:
                 y_anthro = model.forward(data)
                 one_anthro = anthro_train[j]
                 for k in range(10):
-                    mse_individual[k][i // 10] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/10)
+                    mse_individual[k][i] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/10)
                 
             #Do some backward propagation
             optimizer.zero_grad()
