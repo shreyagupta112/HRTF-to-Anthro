@@ -46,6 +46,8 @@ class ModelTrainer:
         epochs = 80
         losses = []
         indivLosses = []
+
+        mse_individual = [[0 for a in range(epochs)] for b in range(10)]
         for i in range(epochs):
             # propgate forward
             anthro_pred = model.forward(X_train)
@@ -62,18 +64,41 @@ class ModelTrainer:
 
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {lossAnthro}')
+
+            # Calculate mean squared error
+            for j, data in enumerate(X_train):
+                y_anthro = model.forward(data)
+                one_anthro = anthro_train[j]
+                for k in range(10):
+                    mse_individual[k][i // 10] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/10)
                 
             #Do some backward propagation
             optimizer.zero_grad()
             lossAnthro.backward()
             optimizer.step()
+
         # Plot losses
+        '''
         trainLoss = plt.figure()
-        plt.plot(range(epochs), losses)
+        plt.plot(range(epochs // 10), losses)
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
+        '''
+
+        # Plot mse
+        for i in range(10):
+            anthroMSE = plt.figure()
+            mse_anthro = mse_individual[i]
+            plt.plot(range(epochs), mse_anthro)
+            ylabel = "Anthro Measure " + str(i)
+            plt.ylabel(ylabel)
+            plt.xlabel("Epoch")
+            plotlabel = ylabel + " vs Epoch"
+            plt.title(plotlabel)
+            figlabel = "../figures/" + str(i) + ".png"
+            anthroMSE.savefig(figlabel)
     
     def basicValidation(self, model):
         # Get data
