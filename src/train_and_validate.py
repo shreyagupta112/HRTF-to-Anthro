@@ -110,7 +110,7 @@ class ModelTrainer:
             lossAnthro = criterion(anthro_eval, anthro_test) 
             totalLoss = lossAnthro #find loss or error
             mse = [0]* 10
-            print(totalLoss)
+            # print(totalLoss)
             
             # Calculate mean squared error
             for i, data in enumerate(X_test):
