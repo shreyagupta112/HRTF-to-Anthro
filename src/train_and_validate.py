@@ -104,23 +104,31 @@ class ModelTrainer:
         # Get data
         X_test = self.X_test
         anthro_test = self.anthro_test
+        anthro_error = []
         criterion = nn.MSELoss()
         with torch.no_grad():
             anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
             lossAnthro = criterion(anthro_eval, anthro_test) 
             totalLoss = lossAnthro #find loss or error
-            mse = [0]* 10
-            print(totalLoss)
             
-            # Calculate mean squared error
+            
             for i, data in enumerate(X_test):
-                # find the percentage error in all anthropometric data outputs
+                # find the difference from expected values
                 y_anthro = model.forward(data)
-                one_anthro = anthro_test[i]
-                for j in range(10):
-                    mse[j] += (one_anthro[j] - y_anthro[j])**2
-            for i in range(10):
-                mse[j] *= (1/10)
-            # plot the mse for each anthropometric data point
-        return mse
+                error = torch.abs(anthro_test[i] - y_anthro)
+                error_list = error.tolist()
+                anthro_error.append(error_list)
+
+        transposed_data = list(zip(*anthro_error))
+
+        averages = [sum(column) / len(column) for column in transposed_data]
+
+        # plot difference across each anthro measurement
+        anthroErrorPlot = plt.figure()
+        plt.plot(range(len(averages)), averages)
+        plt.ylabel("Difference")
+        plt.xlabel("Anthro Measurement Point")
+        plt.title("Difference Across Actual and Calculated Anthro Measurements")
+        anthroErrorPlot.savefig('../figures/validation.png')
+        return totalLoss
     
