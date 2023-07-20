@@ -17,9 +17,6 @@ class Main:
 
         self.trainer.trainModel(self.model)
 
-        mape = self.trainer.basicValidation(self.model)
-
-        print(mape)
 
     # This method will make a prediction given a subject
     def predictAnthro(self, subject):

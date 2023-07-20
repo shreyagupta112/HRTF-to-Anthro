@@ -15,7 +15,8 @@ class ModelTrainer:
         hrir_pos = np.hstack((hrir, pos))
         anthro = InputProcessing.extractAnthro(3, True)
         anthro = np.tile(anthro, (1250,1))
-        hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.2, random_state=41)
+        hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
+        hrir_pos_train, hrir_pos_val, anthro_train, anthro_val = train_test_split(hrir_pos_train, anthro_train, test_size=0.23, random_state=41)
 
         # get mean and standard deviation
         self.anthro_mean = np.mean(anthro)
@@ -24,20 +25,23 @@ class ModelTrainer:
         self.hrirPos_std = np.std(hrir_pos)
 
         # normalize inputs
-        hrir_pos_train = torch.FloatTensor(hrir_pos_train)
-        self.X_train = (hrir_pos_train - self.hrirPos_mean) / (self.hrirPos_std)
-        hrir_pos_test = torch.FloatTensor(hrir_pos_test)
-        self.X_test  = (hrir_pos_test - self.hrirPos_mean) / (self.hrirPos_std)
-        anthro_train = torch.FloatTensor(anthro_train)
-        self.anthro_train = (anthro_train - self.anthro_mean) / (self.anthro_std)
-        anthro_test = torch.FloatTensor(anthro_test)
-        self.anthro_test = (anthro_test - self.anthro_mean) / (self.anthro_std)
-
+        self.X_train  = self.normalize(hrir_pos_train, self.hrirPos_mean, self.hrirPos_std)
+        self.X_val  = self.normalize(hrir_pos_val, self.hrirPos_mean, self.hrirPos_std) 
+        self.X_test  = self.normalize(hrir_pos_test, self.hrirPos_mean, self.hrirPos_std)
+        self.Y_train = self.normalize(anthro_train, self.anthro_mean, self.anthro_std)
+        self.Y_val = self.normalize(anthro_val, self.anthro_mean, self.anthro_std)
+        self.Y_test = self.normalize(anthro_test, self.anthro_mean, self.anthro_std)
+        
+    def normalize(self, data, mean, std):
+        tensor = torch.FloatTensor(data)
+        normal = (tensor - mean) / std
+        return normal
+    
     # Method to train the model
     def trainModel(self, model):
         # Get training data
         X_train = self.X_train
-        anthro_train = self.anthro_train
+        anthro_train = self.Y_train
         # Set loss function
         criterion = nn.MSELoss()
         #Choose Adam Optimizer, learning rate
@@ -45,7 +49,6 @@ class ModelTrainer:
         #Set iterations
         epochs = 80
         losses = []
-        indivLosses = []
 
         mse_individual = [[0 for a in range(epochs)] for b in range(10)]
         for i in range(epochs):
@@ -54,10 +57,6 @@ class ModelTrainer:
 
             #calculate loss
             lossAnthro = criterion(anthro_pred, anthro_train)
-
-            #calculate individual losses
-            mse = nn.functional.mse_loss(anthro_pred, anthro_train, reduction='none')
-            indivLosses.append(mse.detach().numpy())
 
             #Keep track of losses
             losses.append(lossAnthro.detach().numpy())
@@ -77,16 +76,6 @@ class ModelTrainer:
             lossAnthro.backward()
             optimizer.step()
 
-        # Plot losses
-        '''
-        trainLoss = plt.figure()
-        plt.plot(range(epochs // 10), losses)
-        plt.ylabel("Loss")
-        plt.xlabel("Epoch")
-        plt.title("Training Loss")
-        trainLoss.savefig('../figures/error.png')
-        '''
-
         # Plot mse
         for i in range(10):
             anthroMSE = plt.figure()
@@ -100,35 +89,27 @@ class ModelTrainer:
             figlabel = "../figures/" + str(i) + ".png"
             anthroMSE.savefig(figlabel)
     
-    def basicValidation(self, model):
+    def testModel(self, model):
         # Get data
         X_test = self.X_test
-        anthro_test = self.anthro_test
-        anthro_error = []
+        anthro_test = self.Y_test
         criterion = nn.MSELoss()
         with torch.no_grad():
             anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
             lossAnthro = criterion(anthro_eval, anthro_test) 
             totalLoss = lossAnthro #find loss or error
+            mse = [0]* 10
+            print(totalLoss)
             
-            
+            # Calculate mean squared error
             for i, data in enumerate(X_test):
-                # find the difference from expected values
+                # find the percentage error in all anthropometric data outputs
                 y_anthro = model.forward(data)
-                error = torch.abs(anthro_test[i] - y_anthro)
-                error_list = error.tolist()
-                anthro_error.append(error_list)
-
-        transposed_data = list(zip(*anthro_error))
-
-        averages = [sum(column) / len(column) for column in transposed_data]
-
-        # plot difference across each anthro measurement
-        anthroErrorPlot = plt.figure()
-        plt.plot(range(len(averages)), averages)
-        plt.ylabel("Difference")
-        plt.xlabel("Anthro Measurement Point")
-        plt.title("Difference Across Actual and Calculated Anthro Measurements")
-        anthroErrorPlot.savefig('../figures/validation.png')
-        return totalLoss
+                one_anthro = anthro_test[i]
+                for j in range(10):
+                    mse[j] += (one_anthro[j] - y_anthro[j])**2
+            for i in range(10):
+                mse[j] *= (1/10)
+            # plot the mse for each anthropometric data point
+        return mse
     
