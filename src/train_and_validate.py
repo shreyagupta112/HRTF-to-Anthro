@@ -62,6 +62,7 @@ class ModelTrainer:
         indivLosses = []
         mse_train_data = []
         mse_validation_data = []
+        min_valid_loss = np.inf
         for i in range(epochs):
             model.train()
             # propgate forward
@@ -72,7 +73,7 @@ class ModelTrainer:
             mse = nn.functional.mse_loss(anthro_pred, anthro_train, reduction='none')
             indivLosses.append(mse.detach().numpy())
             #Keep track of losses
-            losses.append(lossAnthro.detach().numpy())
+            train_losses.append(lossAnthro.detach().numpy())
             train_output = torch.mean(mse, dim=0)
             mse_train_data.append(np.array(train_output.detach().numpy()))
 
@@ -96,7 +97,13 @@ class ModelTrainer:
                 val_output = [0]*10
                 for column_index in range(10):
                     val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
-            mse_validation_data.append(val_output)
+                tot_loss_val = loss_fn(anthro_val_pred, anthro_test)
+                mse_validation_data.append(val_output)
+            if min_valid_loss > tot_loss_val:
+                min_valid_loss = tot_loss_val
+                # Saving State Dict
+                torch.save(model.state_dict(), 'saved_model.pth')
+
     
         '''
 
