@@ -49,43 +49,50 @@ class ModelTrainer:
 
         mse_individual = [[0 for a in range(epochs)] for b in range(10)]
         for i in range(epochs):
+            model.train()
             # propgate forward
             anthro_pred = model.forward(X_train)
-
             #calculate loss
             lossAnthro = criterion(anthro_pred, anthro_train)
-
             #calculate individual losses
             mse = nn.functional.mse_loss(anthro_pred, anthro_train, reduction='none')
             indivLosses.append(mse.detach().numpy())
-
             #Keep track of losses
             losses.append(lossAnthro.detach().numpy())
 
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {lossAnthro}')
+            
+            model.eval()   # Set the model to evaluation mode
+            with torch.no_grad():
+                X_test = self.X_test
+                anthro_test = self.anthro_test
+                anthro_val_pred = model.forward(X_test)
+                lossValAnthro = criterion(anthro_val_pred, anthro_test)
 
-            # Calculate mean squared error
-            for j, data in enumerate(X_train):
-                y_anthro = model.forward(data)
-                one_anthro = anthro_train[j]
-                for k in range(10):
-                    mse_individual[k][i] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/10)
-                
+
             #Do some backward propagation
+            model.train()
             optimizer.zero_grad()
             lossAnthro.backward()
             optimizer.step()
 
-        # Plot losses
+            # Calculate mean squared error
         '''
+            for j, data in enumerate(X_train):
+                y_anthro = model.forward(data)
+                one_anthro = anthro_train[j]
+                for k in range(10):
+                    mse_individual[k][i] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/160)
+
+        # Plot losses
         trainLoss = plt.figure()
         plt.plot(range(epochs // 10), losses)
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
-        '''
+
 
         # Plot mse
         for i in range(10):
@@ -99,6 +106,7 @@ class ModelTrainer:
             plt.title(plotlabel)
             figlabel = "../figures/" + str(i) + ".png"
             anthroMSE.savefig(figlabel)
+        '''
     
     def basicValidation(self, model):
         # Get data
@@ -120,7 +128,8 @@ class ModelTrainer:
                 for j in range(10):
                     mse[j] += (one_anthro[j] - y_anthro[j])**2
             for i in range(10):
-                mse[j] *= (1/10)
+                mse[i] *= (1/40)
             # plot the mse for each anthropometric data point
+        print("mse ", mse)
         return mse
     
