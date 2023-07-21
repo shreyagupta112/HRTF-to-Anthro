@@ -16,7 +16,6 @@ class ModelTrainer:
         anthro = InputProcessing.extractAnthro(3, True)
         anthro = np.tile(anthro, (1250,1))
         hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
-        hrir_pos_train, hrir_pos_val, anthro_train, anthro_val = train_test_split(hrir_pos_train, anthro_train, test_size=0.23, random_state=41)
 
         # get mean and standard deviation
         self.anthro_mean = np.mean(anthro)
@@ -26,10 +25,8 @@ class ModelTrainer:
 
         # normalize inputs
         self.X_train  = self.normalize(hrir_pos_train, self.hrirPos_mean, self.hrirPos_std)
-        self.X_val  = self.normalize(hrir_pos_val, self.hrirPos_mean, self.hrirPos_std) 
         self.X_test  = self.normalize(hrir_pos_test, self.hrirPos_mean, self.hrirPos_std)
         self.Y_train = self.normalize(anthro_train, self.anthro_mean, self.anthro_std)
-        self.Y_val = self.normalize(anthro_val, self.anthro_mean, self.anthro_std)
         self.Y_test = self.normalize(anthro_test, self.anthro_mean, self.anthro_std)
         
     def normalize(self, data, mean, std):
@@ -48,8 +45,9 @@ class ModelTrainer:
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
         epochs = 80
-        losses = []
-
+        train_losses = []
+        val_losses = []
+        indivLosses = []
         mse_train_data = []
         mse_validation_data = []
         for i in range(epochs):
@@ -62,7 +60,7 @@ class ModelTrainer:
             mse = nn.functional.mse_loss(anthro_pred, anthro_train, reduction='none')
             indivLosses.append(mse.detach().numpy())
             #Keep track of losses
-            losses.append(lossAnthro.detach().numpy())
+            train_losses.append(lossAnthro.detach().numpy())
 
             train_output = torch.mean(mse, dim=0)
             mse_train_data.append(np.array(train_output.detach().numpy()))
@@ -74,10 +72,12 @@ class ModelTrainer:
             model.eval()   
             with torch.no_grad():
                 X_test = self.X_test
-                anthro_test = self.anthro_test
+                anthro_test = self.Y_test
                 anthro_val_pred = model.forward(X_test)
 
                 loss_fn = nn.MSELoss()
+                lossValAnthro = loss_fn(anthro_val_pred, anthro_test)
+                val_losses.append(lossValAnthro.detach().numpy())
                 val_output = [0]*10
                 for column_index in range(10):
                     val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
@@ -92,17 +92,17 @@ class ModelTrainer:
             optimizer.step()
 
             # Calculate mean squared error
-        '''
 
         # Plot losses
         trainLoss = plt.figure()
-        plt.plot(range(epochs // 10), losses)
+        plt.plot(range(epochs), train_losses, label = "training losses")
+        plt.plot(range(epochs), val_losses, label = "validation losses")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
 
-
+        '''
         # Plot mse
         for i in range(10):
             anthroMSE = plt.figure()
