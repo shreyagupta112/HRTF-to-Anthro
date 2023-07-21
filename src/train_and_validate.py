@@ -47,7 +47,8 @@ class ModelTrainer:
         losses = []
         indivLosses = []
 
-        mse_individual = [[0 for a in range(epochs)] for b in range(10)]
+        mse_train_data = []
+        mse_validation_data = []
         for i in range(epochs):
             model.train()
             # propgate forward
@@ -59,21 +60,25 @@ class ModelTrainer:
             indivLosses.append(mse.detach().numpy())
             #Keep track of losses
             losses.append(lossAnthro.detach().numpy())
+
+            train_output = torch.mean(mse, dim=0)
+            mse_train_data.append(np.array(train_output.detach().numpy()))
+
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {lossAnthro}')
             
-            # Evalutation
-            model.eval()   # Set the model to evaluation mode
+            # Get the MSE of the validation data without chaning the wieghts
+            model.eval()   
             with torch.no_grad():
                 X_test = self.X_test
                 anthro_test = self.anthro_test
                 anthro_val_pred = model.forward(X_test)
 
                 loss_fn = nn.MSELoss()
-                loss_output = [0]*10
+                val_output = [0]*10
                 for column_index in range(10):
-                    loss_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
-
+                    val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
+            mse_validation_data.append(val_output)
     
 
 
@@ -85,11 +90,6 @@ class ModelTrainer:
 
             # Calculate mean squared error
         '''
-            for j, data in enumerate(X_train):
-                y_anthro = model.forward(data)
-                one_anthro = anthro_train[j]
-                for k in range(10):
-                    mse_individual[k][i] += ((one_anthro[k].item() - y_anthro[k].item())**2)*(1/160)
 
         # Plot losses
         trainLoss = plt.figure()
@@ -113,6 +113,24 @@ class ModelTrainer:
             figlabel = "../figures/" + str(i) + ".png"
             anthroMSE.savefig(figlabel)
         '''
+        for i in range(10):
+            anthroMSE = plt.figure()
+            mse_train_data = np.array(mse_train_data)
+            mse_validation_data = np.array(mse_validation_data)
+            mse_train = mse_train_data[:, i]
+            mse_valid = mse_validation_data[:, i]
+            
+            plt.plot(range(epochs), mse_train, label = "training data")
+            plt.plot(range(epochs), mse_valid, label = "validation data")
+
+            ylabel = "MSE of Anthro Measure " + str(i)
+            plotlabel = ylabel + " vs Epoch"
+            figlabel = "../figures/" + str(i) + ".png"
+
+            plt.ylabel(ylabel)
+            plt.xlabel("Epoch")
+            plt.title(plotlabel)
+            anthroMSE.savefig(figlabel)
     
     def basicValidation(self, model):
         # Get data
