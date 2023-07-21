@@ -22,6 +22,7 @@ class ModelTrainer:
         # Split the test set again to get validation set (20% validation, 10% test)
         hrir_pos_valid, hrir_pos_test, anthro_valid, anthro_test = train_test_split(
             hrir_pos_test, anthro_test, test_size=0.33, random_state=41)
+        hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
 
         # get mean and standard deviation
         self.anthro_mean = np.mean(anthro)
@@ -56,9 +57,9 @@ class ModelTrainer:
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
         epochs = 80
-        losses = []
+        train_losses = []
+        val_losses = []
         indivLosses = []
-
         mse_train_data = []
         mse_validation_data = []
         for i in range(epochs):
@@ -90,6 +91,8 @@ class ModelTrainer:
                 anthro_val_pred = model.forward(X_test)
 
                 loss_fn = nn.MSELoss()
+                lossValAnthro = loss_fn(anthro_val_pred, anthro_test)
+                val_losses.append(lossValAnthro.detach().numpy())
                 val_output = [0]*10
                 for column_index in range(10):
                     val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
@@ -99,13 +102,14 @@ class ModelTrainer:
 
         # Plot losses
         trainLoss = plt.figure()
-        plt.plot(range(epochs // 10), losses)
+        plt.plot(range(epochs), train_losses, label = "training losses")
+        plt.plot(range(epochs), val_losses, label = "validation losses")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
 
-
+        '''
         # Plot mse
         for i in range(10):
             anthroMSE = plt.figure()
@@ -118,47 +122,4 @@ class ModelTrainer:
             plt.title(plotlabel)
             figlabel = "../figures/" + str(i) + ".png"
             anthroMSE.savefig(figlabel)
-        '''
-        for i in range(10):
-            anthroMSE = plt.figure()
-            mse_train_data = np.array(mse_train_data)
-            mse_validation_data = np.array(mse_validation_data)
-            mse_train = mse_train_data[:, i]
-            mse_valid = mse_validation_data[:, i]
-            
-            plt.plot(range(epochs), mse_train, label = "training data")
-            plt.plot(range(epochs), mse_valid, label = "validation data")
-
-            ylabel = "MSE of Anthro Measure " + str(i)
-            plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/" + str(i) + ".png"
-
-            plt.ylabel(ylabel)
-            plt.xlabel("Epoch")
-            plt.title(plotlabel)
-            anthroMSE.savefig(figlabel)
-    
-    def basicValidation(self, model):
-        # Get data
-        X_test = self.X_test
-        anthro_test = self.anthro_test
-        criterion = nn.MSELoss()
-        with torch.no_grad():
-            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
-            lossAnthro = criterion(anthro_eval, anthro_test) 
-            totalLoss = lossAnthro #find loss or error
-            mse = [0]* 10
-            print(totalLoss)
-            
-            # Calculate mean squared error
-            for i, data in enumerate(X_test):
-                # find the percentage error in all anthropometric data outputs
-                y_anthro = model.forward(data)
-                one_anthro = anthro_test[i]
-                for j in range(10):
-                    mse[j] += (one_anthro[j] - y_anthro[j])**2
-            for i in range(10):
-                mse[j] *= (1/10)
-            # plot the mse for each anthropometric data point
-        return mse
-    
+     
