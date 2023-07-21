@@ -89,20 +89,23 @@ class ModelTrainer:
             # Get the MSE of the validation data without chaning the wieghts
             model.eval()   
             with torch.no_grad():
-                anthro_val_pred = model.forward(X_test)
+                anthro_val_pred = model(X_test)
 
                 loss_fn = nn.MSELoss()
                 lossValAnthro = loss_fn(anthro_val_pred, anthro_test)
+                # plot validation error
                 val_losses.append(lossValAnthro.detach().numpy())
                 val_output = [0]*10
                 for column_index in range(10):
                     val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
-                tot_loss_val = loss_fn(anthro_val_pred, anthro_test)
                 mse_validation_data.append(val_output)
-            if min_valid_loss > tot_loss_val:
-                min_valid_loss = tot_loss_val
-                # Saving State Dict
-                torch.save(model.state_dict(), 'saved_model.pth')
+
+                # do cross validation
+                valid_loss = lossValAnthro.item() * X_test.size(0)
+                tot_loss_val = loss_fn(anthro_val_pred, anthro_test)
+                if min_valid_loss > tot_loss_val:
+                    min_valid_loss = valid_loss
+                    torch.save(model.state_dict(), 'saved_model.pth')
 
     
         '''
@@ -117,16 +120,4 @@ class ModelTrainer:
         trainLoss.savefig('../figures/error.png')
 
         '''
-        # Plot mse
-        for i in range(10):
-            anthroMSE = plt.figure()
-            mse_anthro = mse_individual[i]
-            plt.plot(range(epochs), mse_anthro)
-            ylabel = "Anthro Measure " + str(i)
-            plt.ylabel(ylabel)
-            plt.xlabel("Epoch")
-            plotlabel = ylabel + " vs Epoch"
-            plt.title(plotlabel)
-            figlabel = "../figures/" + str(i) + ".png"
-            anthroMSE.savefig(figlabel)
      
