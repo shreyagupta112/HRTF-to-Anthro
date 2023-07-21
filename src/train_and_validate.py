@@ -68,7 +68,13 @@ class ModelTrainer:
                 X_test = self.X_test
                 anthro_test = self.anthro_test
                 anthro_val_pred = model.forward(X_test)
-                lossValAnthro = criterion(anthro_val_pred, anthro_test)
+
+                loss_fn = nn.MSELoss()
+                loss_output = [0]*10
+                for column_index in range(10):
+                    loss_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
+
+    
 
 
             #Do some backward propagation
