@@ -59,10 +59,10 @@ class ModelTrainer:
             indivLosses.append(mse.detach().numpy())
             #Keep track of losses
             losses.append(lossAnthro.detach().numpy())
-
             if i % 10 == 0:
                 print(f'Epoch: {i} and loss: {lossAnthro}')
             
+            # Evalutation
             model.eval()   # Set the model to evaluation mode
             with torch.no_grad():
                 X_test = self.X_test
@@ -118,7 +118,7 @@ class ModelTrainer:
             lossAnthro = criterion(anthro_eval, anthro_test) 
             totalLoss = lossAnthro #find loss or error
             mse = [0]* 10
-            # print(totalLoss)
+            print(totalLoss)
             
             # Calculate mean squared error
             for i, data in enumerate(X_test):
@@ -128,8 +128,7 @@ class ModelTrainer:
                 for j in range(10):
                     mse[j] += (one_anthro[j] - y_anthro[j])**2
             for i in range(10):
-                mse[i] *= (1/40)
+                mse[j] *= (1/10)
             # plot the mse for each anthropometric data point
-        print("mse ", mse)
         return mse
     

@@ -9,7 +9,7 @@ class InputProcessing:
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset = f[subject]['hrir_l']['raw']
+            dset = f[subject]['hrir_l']['trunc_64']
             row = np.array(dset)
         
         return row
@@ -20,7 +20,7 @@ class InputProcessing:
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset = f[subject]['srcpos']['raw']
+            dset = f[subject]['srcpos']['trunc_64']
             row = np.array(dset)
         
         return row
