@@ -17,7 +17,9 @@ class Main:
 
         self.trainer.trainModel(self.model)
 
+        mse = self.trainer.testModel(self.model)
 
+        print(mse)
     # This method will make a prediction given a subject
     def predictAnthro(self, subject):
         hrir = InputProcessing.extractHRIR(subject)
@@ -38,8 +40,6 @@ class Main:
             return anthro_pred
             
         
-
-
 main = Main()
 main.trainAndTest()
 anthroPred = main.predictAnthro(3)

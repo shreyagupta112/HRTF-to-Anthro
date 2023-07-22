@@ -22,7 +22,7 @@ class ModelTrainer:
         # Split the test set again to get validation set (20% validation, 10% test)
         hrir_pos_valid, hrir_pos_test, anthro_valid, anthro_test = train_test_split(
             hrir_pos_test, anthro_test, test_size=0.33, random_state=41)
-        hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
+        # hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
 
         # get mean and standard deviation
         self.anthro_mean = np.mean(anthro)
@@ -49,8 +49,8 @@ class ModelTrainer:
         # Get training data
         X_train = self.X_train
         anthro_train = self.anthro_train
-        X_test = self.X_test
-        anthro_test = self.anthro_test
+        X_valid = self.X_valid
+        anthro_valid = self.anthro_valid
         # Set loss function
         criterion = nn.MSELoss()
         #Choose Adam Optimizer, learning rate
@@ -89,26 +89,23 @@ class ModelTrainer:
             # Get the MSE of the validation data without chaning the wieghts
             model.eval()   
             with torch.no_grad():
-                anthro_val_pred = model(X_test)
+                anthro_val_pred = model(X_valid)
 
                 loss_fn = nn.MSELoss()
-                lossValAnthro = loss_fn(anthro_val_pred, anthro_test)
+                lossValAnthro = loss_fn(anthro_val_pred, anthro_valid)
                 # plot validation error
                 val_losses.append(lossValAnthro.detach().numpy())
                 val_output = [0]*10
                 for column_index in range(10):
-                    val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
+                    val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_valid[:, column_index])
                 mse_validation_data.append(val_output)
 
                 # do cross validation
-                valid_loss = lossValAnthro.item() * X_test.size(0)
-                tot_loss_val = loss_fn(anthro_val_pred, anthro_test)
+                valid_loss = lossValAnthro.item() * X_valid.size(0)
+                tot_loss_val = loss_fn(anthro_val_pred, anthro_valid)
                 if min_valid_loss > tot_loss_val:
                     min_valid_loss = valid_loss
                     torch.save(model.state_dict(), 'saved_model.pth')
-
-    
-        '''
 
         # Plot losses
         trainLoss = plt.figure()
@@ -119,5 +116,29 @@ class ModelTrainer:
         plt.title("Training Loss")
         trainLoss.savefig('../figures/error.png')
 
-        '''
+    # Method to test the model
+    def testModel(self, model):
+        X_test = self.X_test
+        anthro_test = self.anthro_test
+        criterion = nn.MSELoss()
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
+            lossAnthro = criterion(anthro_eval, anthro_test) 
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_test_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_test_at_i.append(anthro_test[j][i])
+                plt.plot(range(len(anthro_eval)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_test)), anthro_test_at_i, label = "actual")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{i}_pred.png')
+        return lossAnthro
      
