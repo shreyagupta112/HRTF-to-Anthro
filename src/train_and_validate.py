@@ -22,7 +22,6 @@ class ModelTrainer:
         # Split the test set again to get validation set (20% validation, 10% test)
         hrir_pos_valid, hrir_pos_test, anthro_valid, anthro_test = train_test_split(
             hrir_pos_test, anthro_test, test_size=0.33, random_state=41)
-        # hrir_pos_train,  hrir_pos_test, anthro_train, anthro_test = train_test_split(hrir_pos, anthro, test_size=0.1, random_state=41)
 
         # get mean and standard deviation
         self.anthro_mean = np.mean(anthro)
@@ -31,19 +30,19 @@ class ModelTrainer:
         self.hrirPos_std = np.std(hrir_pos)
 
         # normalize inputs
-        hrir_pos_train = torch.FloatTensor(hrir_pos_train)
-        self.X_train = (hrir_pos_train - self.hrirPos_mean) / (self.hrirPos_std)
-        hrir_pos_test = torch.FloatTensor(hrir_pos_test)
-        self.X_test  = (hrir_pos_test - self.hrirPos_mean) / (self.hrirPos_std)
-        hrir_pos_valid = torch.FloatTensor(hrir_pos_valid)
-        self.X_valid  = (hrir_pos_valid - self.hrirPos_mean) / (self.hrirPos_std)
-        anthro_train = torch.FloatTensor(anthro_train)
-        self.anthro_train = (anthro_train - self.anthro_mean) / (self.anthro_std)
-        anthro_test = torch.FloatTensor(anthro_test)
-        self.anthro_test = (anthro_test - self.anthro_mean) / (self.anthro_std)
-        anthro_valid = torch.FloatTensor(anthro_valid)
-        self.anthro_valid = (anthro_valid - self.anthro_mean) / (self.anthro_std)
+        self.X_train = self.normalize(hrir_pos_train, self.hrirPos_mean, self.hrirPos_std)
+        self.X_test = self.normalize(hrir_pos_test, self.hrirPos_mean, self.hrirPos_std)
+        self.X_valid = self.normalize(hrir_pos_valid, self.hrirPos_mean, self.hrirPos_std)
+        self.anthro_train = self.normalize(anthro_train, self.anthro_mean, self.anthro_std)
+        self.anthro_test = self.normalize(anthro_test, self.anthro_mean, self.anthro_std)
+        self.anthro_valid = self.normalize(anthro_valid, self.anthro_mean, self.anthro_std)
 
+    # Method to normalize data
+    def normalize(self, data, mean, std):
+        torch_data = torch.FloatTensor(data)
+        normalized_data = (torch_data - mean) / std
+        return normalized_data
+    
     # Method to train the model
     def trainModel(self, model):
         # Get training data
