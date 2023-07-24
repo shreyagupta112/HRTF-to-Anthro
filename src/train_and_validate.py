@@ -129,40 +129,4 @@ class ModelTrainer:
             val_output[column_index] = loss_fn(anthro_test_pred[:, column_index], anthro_test[:, column_index])
         mse_test_data.append(val_output)
 
-        '''
-
-        # Plot losses
-        trainLoss = plt.figure()
-        plt.plot(range(epochs), train_losses, label = "training losses")
-        plt.plot(range(epochs), val_losses, label = "validation losses")
-        plt.ylabel("Loss")
-        plt.xlabel("Epoch")
-        plt.title("Training Loss")
-        trainLoss.savefig('../figures/error.png')
-
-    # Method to test the model
-    def testModel(self, model):
-        X_test = self.X_test
-        anthro_test = self.anthro_test
-        criterion = nn.MSELoss()
-        with torch.no_grad():
-            # calculate MSE for whole predicition vector
-            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
-            lossAnthro = criterion(anthro_eval, anthro_test) 
-
-            # plot predicted vs actual for each anthropometric data point
-            for i in range(len(anthro_eval[0])):
-                prediction = plt.figure()
-                anthro_eval_at_i = []
-                anthro_test_at_i = []
-                for j in range(len(anthro_eval)):
-                    anthro_eval_at_i.append(anthro_eval[j][i])
-                    anthro_test_at_i.append(anthro_test[j][i])
-                plt.plot(range(len(anthro_eval)), anthro_eval_at_i, label = "prediction")
-                plt.plot(range(len(anthro_test)), anthro_test_at_i, label = "actual")
-                plt.ylabel("Measurement")
-                plt.xlabel("HRIR")
-                plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/{i}_pred.png')
-        return lossAnthro
-     
+        
