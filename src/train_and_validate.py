@@ -49,8 +49,8 @@ class ModelTrainer:
         # Get training data
         X_train = self.X_train
         anthro_train = self.anthro_train
-        X_test = self.X_test
-        anthro_test = self.anthro_test
+        X_valid = self.X_valid
+        anthro_valid = self.anthro_valid
         # Set loss function
         criterion = nn.MSELoss()
         #Choose Adam Optimizer, learning rate
@@ -89,25 +89,40 @@ class ModelTrainer:
             # Get the MSE of the validation data without chaning the wieghts
             model.eval()   
             with torch.no_grad():
-                anthro_val_pred = model(X_test)
+                anthro_val_pred = model(X_valid)
 
                 loss_fn = nn.MSELoss()
-                lossValAnthro = loss_fn(anthro_val_pred, anthro_test)
+                lossValAnthro = loss_fn(anthro_val_pred, anthro_valid)
                 # plot validation error
                 val_losses.append(lossValAnthro.detach().numpy())
                 val_output = [0]*10
                 for column_index in range(10):
-                    val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_test[:, column_index])
+                    val_output[column_index] = loss_fn(anthro_val_pred[:, column_index], anthro_valid[:, column_index])
                 mse_validation_data.append(val_output)
 
                 # do cross validation
-                valid_loss = lossValAnthro.item() * X_test.size(0)
-                tot_loss_val = loss_fn(anthro_val_pred, anthro_test)
+                valid_loss = lossValAnthro.item() * X_valid.size(0)
+                tot_loss_val = loss_fn(anthro_val_pred, anthro_valid)
                 if min_valid_loss > tot_loss_val:
                     min_valid_loss = valid_loss
                     torch.save(model.state_dict(), 'saved_model.pth')
 
-    
+    def testModel(self, model):
+        X_test = self.X_test
+        anthro_test = self.anthro_test
+        test_losses =[]
+        mse_test_data = []
+
+        anthro_test_pred = model(X_test)
+        loss_fn = nn.MSELoss()
+        lossValAnthro = loss_fn(anthro_test_pred, anthro_test)
+        # plot validation error
+        test_losses.append(lossValAnthro.detach().numpy())
+        val_output = [0]*10
+        for column_index in range(10):
+            val_output[column_index] = loss_fn(anthro_test_pred[:, column_index], anthro_test[:, column_index])
+        mse_test_data.append(val_output)
+
         '''
 
         # Plot losses
