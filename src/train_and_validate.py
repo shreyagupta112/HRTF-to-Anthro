@@ -113,34 +113,7 @@ class ModelTrainer:
                     min_valid_loss = valid_loss
                     torch.save(model.state_dict(), 'saved_model.pth')
 
-    def testModel(self, model):
-        X_test = self.X_test
-        anthro_test = self.anthro_test
-        test_losses =[]
-        mse_test_data = []
-
-        anthro_test_pred = model(X_test)
-        loss_fn = nn.MSELoss()
-        lossValAnthro = loss_fn(anthro_test_pred, anthro_test)
-        # plot validation error
-        test_losses.append(lossValAnthro.detach().numpy())
-        val_output = [0]*10
-        for column_index in range(10):
-            val_output[column_index] = loss_fn(anthro_test_pred[:, column_index], anthro_test[:, column_index])
-        mse_test_data.append(val_output)
-
-        '''
-
-        # Plot losses
-        trainLoss = plt.figure()
-        plt.plot(range(epochs), train_losses, label = "training losses")
-        plt.plot(range(epochs), val_losses, label = "validation losses")
-        plt.ylabel("Loss")
-        plt.xlabel("Epoch")
-        plt.title("Training Loss")
-        trainLoss.savefig('../figures/error.png')
-
-    # Method to test the model
+     # Method to test the model
     def testModel(self, model):
         X_test = self.X_test
         anthro_test = self.anthro_test
@@ -165,4 +138,3 @@ class ModelTrainer:
                 plt.title(f"Anthro Prediction for measurement{i}")
                 prediction.savefig(f'../figures/{i}_pred.png')
         return lossAnthro
-     
