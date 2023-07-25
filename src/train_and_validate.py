@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from inputProcessing import *
 import numpy as np
@@ -12,7 +11,7 @@ a model
 class ModelTrainer:
     def __init__(self, ):
         self.DP = DataProcessing()
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne()
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo()
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -87,8 +86,9 @@ class ModelTrainer:
         plt.plot(range(epochs), val_losses, label = "validation losses")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
-        plt.title("Training Loss With Split 1")
-        trainLoss.savefig('../figures/error_split1.png')
+        plt.title("Training Loss")
+        trainLoss.savefig('../figures/split2/error.png')
+        plt.close()
 
         # Plot error for each anthro measurement
         for i in range(10):
@@ -102,18 +102,19 @@ class ModelTrainer:
             plt.plot(range(epochs), mse_valid, label = "validation data")
 
             ylabel = "MSE of Anthro Measure " + str(i)
-            plotlabel = ylabel + " vs Epoch With Split 1"
-            figlabel = "../figures/" + str(i) + "_split1" + ".png"
+            plotlabel = ylabel + " vs Epoch"
+            figlabel = "../figures/split2/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
             plt.title(plotlabel)
             anthroMSE.savefig(figlabel)
+            plt.close()
 
      # Method to test the model
     def testModel(self, model):
         X_test = self.X_test
-        anthro_test = self.anthro_test
+        anthro_test = self.Y_test
         criterion = nn.MSELoss()
         with torch.no_grad():
             # calculate MSE for whole predicition vector
@@ -133,5 +134,6 @@ class ModelTrainer:
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/{i}_pred.png')
+                prediction.savefig(f'../figures/split2/test/{i}_pred.png')
+                plt.close()
         return lossAnthro

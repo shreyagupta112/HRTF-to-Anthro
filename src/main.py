@@ -9,6 +9,7 @@ class Main:
     def __init__(self):
         self.model = Model()
         self.trainer = ModelTrainer()
+        self.inputProcessing = InputProcessing()
 
     # This method will train and test the model
     def trainAndTest(self):
@@ -17,23 +18,21 @@ class Main:
 
         self.trainer.trainModel(self.model)
 
-        # mse = self.trainer.testModel(self.model)
+        mse = self.trainer.testModel(self.model)
 
-        # print(mse)
+        print(mse)
     # This method will make a prediction given a subject
-    def predictAnthro(self, subject):
-        hrir = InputProcessing.extractHRIR(subject)
-        pos = InputProcessing.extractPos(subject)
-        hrir_pos = np.hstack((hrir, pos))
-        input = torch.FloatTensor(hrir_pos)
-        input_normal = (input - self.trainer.hrirPos_mean) / (self.trainer.hrirPos_std)
+    def predictAnthro(self, subject, side):
+        
+        input = torch.tensor(self.inputProcessing.extractSingleHrirAndPos(subject)).to(torch.float32)
         
         with torch.no_grad():
             # Make prediction
-            anthro_pred = self.model.forward(input_normal)
-
-            # reverse normalization
-            anthro_pred = (anthro_pred * self.trainer.anthro_std) + self.trainer.anthro_mean
+            anthro_pred = 0
+            if side == "LEFT":
+                anthro_pred = self.model.forward(input[0:1250])
+            else:
+                anthro_pred = self.model.forward(input[1250:])
 
             anthro_pred = torch.mean(anthro_pred, dim=0)
             
