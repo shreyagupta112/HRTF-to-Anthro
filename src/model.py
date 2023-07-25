@@ -8,7 +8,7 @@ This class represents the model architecture used for
 this simple model
 
 One input vectors:
-    HRIR of left ear + Src Position: 1 X 67
+    HRIR of left ear + Src Position: 1 X 203
     
 Output Vectors:
     Left-Ear-Only Anthro Measurements: 10 X 1
@@ -18,7 +18,7 @@ Output Vectors:
 class Model(nn.Module):
 
     def __init__(self, 
-                 hrir_pos=67, 
+                 hrir_pos=203, 
                  h1=10, h2=15, h3=10, 
                  ear_anthro=10):
         super().__init__() # instantiate our nn.Module

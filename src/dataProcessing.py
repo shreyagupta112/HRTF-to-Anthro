@@ -27,6 +27,13 @@ class DataProcessing:
         X_train, Y_train = self.IP.extractData(trainSubjects)
         X_valid, Y_valid = self.IP.extractData(validSubjects)
         X_test, Y_test = self.IP.extractData(testSubjects)
+        
+        X_train = torch.tensor(X_train).to(torch.float32)
+        Y_train = torch.tensor(Y_train).to(torch.float32)
+        X_valid = torch.tensor(X_valid).to(torch.float32)
+        Y_valid = torch.tensor(Y_valid).to(torch.float32)
+        X_test = torch.tensor(X_test).to(torch.float32)
+        Y_test = torch.tensor(Y_test).to(torch.float32)
 
         return X_train, X_valid, X_test, Y_train, Y_valid, Y_test
     
@@ -50,11 +57,14 @@ class DataProcessing:
             X_test = np.vstack((X_test, currX_test))
             Y_test = np.vstack((Y_test, currY_test))
 
+        X_train = torch.tensor(X_train).to(torch.float32)
+        Y_train = torch.tensor(Y_train).to(torch.float32)
+        X_valid = torch.tensor(X_valid).to(torch.float32)
+        Y_valid = torch.tensor(Y_valid).to(torch.float32)
+        X_test = torch.tensor(X_test).to(torch.float32)
+        Y_test = torch.tensor(Y_test).to(torch.float32)
         return X_train, X_valid, X_test, Y_train, Y_valid, Y_test
 
-
-DP = DataProcessing()
-DP.dataSplitTypeTwo()
 
 
     

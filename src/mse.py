@@ -1,16 +1,11 @@
 import torch
-import torch.nn as nn
 
-# Sample data
-y_true = torch.tensor([3.0, 5.0, 7.0])
-y_pred = torch.tensor([2.5, 4.8, 7.2])
-true = torch.tensor([3.0])
-pred = torch.tensor([5.0])
-# Define the Mean Squared Error Loss function
-loss_fn = nn.MSELoss()
+# Example data
+predicted_values = torch.tensor([[2.0, 3.0, 4.0], [5.0, 6.0, 7.0]])  # 2x3 tensor
+actual_values = torch.tensor([[1.5, 3.5, 4.5], [4.5, 5.5, 7.5]])    # 2x3 tensor
 
-# Compute the loss output
-loss_output = loss_fn(pred, true)
+# Calculate the Mean Squared Error (MSE) across each dimension
+mse_per_dimension = torch.mean((predicted_values - actual_values) ** 2, dim=0)
 
+print(mse_per_dimension)
 
-print(loss_output)
