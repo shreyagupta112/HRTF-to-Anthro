@@ -38,9 +38,11 @@ class Main:
             anthro_pred = torch.mean(anthro_pred, dim=0)
             
             return anthro_pred
-            
-        
+
+
+'''
 main = Main()
 main.trainAndTest()
 anthroPred = main.predictAnthro(3)
 print(anthroPred)
+'''
