@@ -65,52 +65,33 @@ class InputProcessing:
             
         return combinedAnthro
     
-    # extract HRIR and Pos for all subjects except...
-    # 8, 9, 11, 12, 15, 17, 19, 158
-    def extractHrirPos(self):
-        # list of all valid subjects since I'm lazy
-        validSubjects = [10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-                         148, 152, 153, 154, 155, 156, 162, 163, 165]
+    # extract HRIR and Pos for all subjects in subjects list
+    def extractHrirPos(self, subjects):
         # get first hrir, pos vector
-        hrir_pos = self.extractSingleHrirAndPos(3)
-        for subject in validSubjects:
+        hrir_pos = self.extractSingleHrirAndPos(subjects[0])
+        for subject in subjects[1:]:
             currArray = self.extractSingleHrirAndPos(subject)
             hrir_pos = np.vstack((hrir_pos, currArray))
         return hrir_pos
     
-    # extract Anthro data for all subjects except...
-    # 8, 9, 11, 12, 15, 17, 19, 158
-    def extractAnthro(self):
-        # list of all valid subjects since I'm lazy
-        validSubjects = [10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-                         148, 152, 153, 154, 155, 156, 162, 163, 165]
+    # extract Anthro data for all subjects in subjects
+    def extractAnthro(self, subjects):
         # get first anthro vector
-        anthro = self.extractSingleAnthro(3)
-        for subject in validSubjects:
+        anthro = self.extractSingleAnthro(subjects[0])
+        for subject in subjects[1:]:
             currArray = self.extractSingleAnthro(subject)
             anthro = np.vstack((anthro, currArray))
         return anthro
 
-    # extract data for model
-    def extractData(self):
-       # list of all valid subjects since I'm lazy
-        validSubjects = [10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-                         148, 152, 153, 154, 155, 156, 162, 163, 165]
+    # extract both hrir_pos and anthro for all subjects in subjects
+    def extractData(self, subjects):
         # get first hrir, pos vector
-        hrir_pos = self.extractSingleHrirAndPos(3)
+        hrir_pos = self.extractSingleHrirAndPos(subjects[0])
         # get first anthro vector
-        anthro = self.extractSingleAnthro(3)
-        for subject in validSubjects:
+        anthro = self.extractSingleAnthro(subjects[0])
+        for subject in subjects[1:]:
             currHrirPosArray = self.extractSingleHrirAndPos(subject)
             currAnthroArray = self.extractSingleAnthro(subject)
             hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
             anthro = np.vstack((anthro, currAnthroArray))
         return hrir_pos, anthro
-
-IP = InputProcessing()
-hrir_pos, anthro = IP.extractData()
-print(hrir_pos.shape)
-print(anthro.shape)
