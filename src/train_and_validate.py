@@ -87,8 +87,8 @@ class ModelTrainer:
         plt.plot(range(epochs), val_losses, label = "validation losses")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
-        plt.title("Training Loss")
-        trainLoss.savefig('../figures/error.png')
+        plt.title("Training Loss With Split 1")
+        trainLoss.savefig('../figures/error_split1.png')
 
         # Plot error for each anthro measurement
         for i in range(10):
@@ -102,8 +102,8 @@ class ModelTrainer:
             plt.plot(range(epochs), mse_valid, label = "validation data")
 
             ylabel = "MSE of Anthro Measure " + str(i)
-            plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/" + str(i) + ".png"
+            plotlabel = ylabel + " vs Epoch With Split 1"
+            figlabel = "../figures/" + str(i) + "_split1" + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
