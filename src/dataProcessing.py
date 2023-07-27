@@ -66,13 +66,5 @@ class DataProcessing:
         Y_test = torch.tensor(Y_test).to(torch.float32)
         return X_train, X_valid, X_test, Y_train, Y_valid, Y_test
 
-    # Function to perform FFT on data
-    def FourierTransform(self):
-        singleData = self.IP.extractSingleHRIR(3)
-        singleLine = singleData[0]
-        print(singleLine)
-
-DP = DataProcessing()
-DP.FourierTransform() 
 
     

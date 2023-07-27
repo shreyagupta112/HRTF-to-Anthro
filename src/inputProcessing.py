@@ -1,6 +1,8 @@
 import h5py
 import os
 import numpy as np
+import sys
+import matplotlib.pyplot as plt
 
 # Class to extract data from HDF5 file
 class InputProcessing:
@@ -10,7 +12,7 @@ class InputProcessing:
         pass
 
     # return an array representing the hrir from a single subject
-    def extractSingleHRIR(self, subject_num: int):
+    def extractSingleHRIR(self, subject_num: int, plot: bool):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -19,8 +21,32 @@ class InputProcessing:
             dset_left = f[subject]['hrir_l']['trunc_64']
             row_right = np.array(dset_right)
             row_left = np.array(dset_left)
+            left_hrtf = self.FourierTransform(row_left)
+            right_hrtf = self.FourierTransform(row_right)
         single_hrir = np.vstack((row_left, row_right))
+        single_hrtf = np.vstack((left_hrtf, right_hrtf))
         
+        if plot:
+            hrir_plot = plt.figure()
+            plt.plot(range(len(row_left[0])), row_left[0], label = "left hrir")
+            plt.plot(range(len(row_right[0])), row_right[0], label = "right hrir")
+            plt.legend(loc="upper right")
+            plt.ylabel("HRIR")
+            plt.xlabel("Time")
+            plt.title(f"First HRIR Plot for subject {subject_num}")
+            plt.show()
+            plt.close()
+
+            hrtf_plot = plt.figure()
+            plt.plot(range(len(left_hrtf[0])), left_hrtf[0], label = "left hrtf")
+            plt.plot(range(len(right_hrtf[0])), right_hrtf[0], label = "right hrtf")
+            plt.legend(loc="upper right")
+            plt.ylabel("HRTF")
+            plt.xlabel("Frequency")
+            plt.title(f"First HRTF Plot for subject {subject_num}")
+            plt.show()
+            plt.close() 
+        sys.exit(0)
         return single_hrir
     
     # return an array representing the positions of a single subject
@@ -37,7 +63,7 @@ class InputProcessing:
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int):
-        hrir = self.extractSingleHRIR(subject_num)
+        hrir = self.extractSingleHRIR(subject_num, False)
         pos = self.extractSinglePos(subject_num)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
@@ -96,3 +122,18 @@ class InputProcessing:
             hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
             anthro = np.vstack((anthro, currAnthroArray))
         return hrir_pos, anthro
+
+    # perform FFT on data
+    def FourierTransform(self, data):
+        #Get the HRTF
+        print(np.shape(data))
+        outputs_fft = np.fft.rfft(data, axis=1)
+        # outputs_complex = np.zeros(np.shape(outputs_fft), dtype=outputs_fft.dtype)
+        # for (s, h) in enumerate(outputs_fft):
+        outputs_complex = outputs_fft/np.max(np.abs(outputs_fft))
+        outputs_mag = abs(outputs_complex) 
+        outputs_mag = 20.0*np.log10(outputs_mag)
+        return outputs_mag
+
+IP = InputProcessing()
+fft = IP.extractSingleHRIR(3, True)

@@ -42,3 +42,4 @@ class Main:
 
 main = Main()
 main.trainAndTest()
+print(main.predictAnthro(3, "LEFT"))
