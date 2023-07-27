@@ -18,7 +18,7 @@ Output Vectors:
 class Model(nn.Module):
 
     def __init__(self, 
-                 hrir_pos=203, 
+                 hrir_pos=36, 
                  h1=30, h2=45, h3=30, 
                  ear_anthro=10):
         super().__init__() # instantiate our nn.Module

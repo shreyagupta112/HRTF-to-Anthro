@@ -28,26 +28,25 @@ class InputProcessing:
         
         if plot:
             hrir_plot = plt.figure()
-            plt.plot(range(len(row_left[0])), row_left[0], label = "left hrir")
-            plt.plot(range(len(row_right[0])), row_right[0], label = "right hrir")
+            plt.plot(range(len(row_left[624])), row_left[624], label = "left hrir")
+            plt.plot(range(len(row_right[624])), row_right[624], label = "right hrir")
             plt.legend(loc="upper right")
             plt.ylabel("HRIR")
             plt.xlabel("Time")
-            plt.title(f"First HRIR Plot for subject {subject_num}")
+            plt.title(f"Center HRIR Plot for subject {subject_num}")
             plt.show()
             plt.close()
 
             hrtf_plot = plt.figure()
-            plt.plot(range(len(left_hrtf[0])), left_hrtf[0], label = "left hrtf")
-            plt.plot(range(len(right_hrtf[0])), right_hrtf[0], label = "right hrtf")
+            plt.plot(range(len(left_hrtf[624])), left_hrtf[624], label = "left hrtf")
+            plt.plot(range(len(right_hrtf[624])), right_hrtf[624], label = "right hrtf")
             plt.legend(loc="upper right")
             plt.ylabel("HRTF")
             plt.xlabel("Frequency")
-            plt.title(f"First HRTF Plot for subject {subject_num}")
+            plt.title(f"Center HRTF Plot for subject {subject_num}")
             plt.show()
             plt.close() 
-        sys.exit(0)
-        return single_hrir
+        return single_hrtf
     
     # return an array representing the positions of a single subject
     def extractSinglePos(self, subject_num: int):
@@ -126,7 +125,6 @@ class InputProcessing:
     # perform FFT on data
     def FourierTransform(self, data):
         #Get the HRTF
-        print(np.shape(data))
         outputs_fft = np.fft.rfft(data, axis=1)
         # outputs_complex = np.zeros(np.shape(outputs_fft), dtype=outputs_fft.dtype)
         # for (s, h) in enumerate(outputs_fft):
@@ -135,5 +133,5 @@ class InputProcessing:
         outputs_mag = 20.0*np.log10(outputs_mag)
         return outputs_mag
 
-IP = InputProcessing()
-fft = IP.extractSingleHRIR(3, True)
+# IP = InputProcessing()
+# fft = IP.extractSingleHRIR(3, True)

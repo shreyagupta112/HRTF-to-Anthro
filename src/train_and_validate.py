@@ -11,7 +11,7 @@ a model
 class ModelTrainer:
     def __init__(self, ):
         self.DP = DataProcessing()
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo()
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne()
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -35,7 +35,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 100
+        epochs = 200
         train_losses = []
         val_losses = []
         test_losses = []
@@ -104,7 +104,7 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig('../figures/raw/split2/error.png')
+        trainLoss.savefig('../figures/HRTF/split1/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -124,7 +124,7 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/raw/split2/indivAnthro/" + str(i) + ".png"
+            figlabel = "../figures/HRTF/split1/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -150,14 +150,12 @@ class ModelTrainer:
                 for j in range(len(anthro_eval)):
                     anthro_eval_at_i.append(anthro_eval[j][i])
                     anthro_test_at_i.append(anthro_test[j][i])
-                plt.plot(range(500), anthro_eval_at_i[0:500], label = "prediction")
-                plt.plot(range(500), anthro_test_at_i[0:500], label = "actual")
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_test_at_i)), anthro_test_at_i, label = "actual")
                 plt.legend(loc="upper right")
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/raw/split2/test/{i}_pred.png')
-                if i == 2:
-                    plt.show()
+                prediction.savefig(f'../figures/HRTF/split1/test/{i}_pred.png')
                 plt.close()
         return lossAnthro
