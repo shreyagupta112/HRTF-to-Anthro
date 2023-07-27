@@ -2,6 +2,7 @@ import h5py
 import os
 import numpy as np
 
+# Class to extract data from HDF5 file
 class InputProcessing:
 
     # blank constructor
@@ -14,8 +15,8 @@ class InputProcessing:
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset_right = f[subject]['hrir_r']['raw']
-            dset_left = f[subject]['hrir_l']['raw']
+            dset_right = f[subject]['hrir_r']['trunc_64']
+            dset_left = f[subject]['hrir_l']['trunc_64']
             row_right = np.array(dset_right)
             row_left = np.array(dset_left)
         single_hrir = np.vstack((row_left, row_right))
@@ -28,7 +29,7 @@ class InputProcessing:
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset = f[subject]['srcpos']['raw']
+            dset = f[subject]['srcpos']['trunc_64']
             row = np.array(dset)
         doubled_row = np.vstack((row, row))
         

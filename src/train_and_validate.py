@@ -11,7 +11,7 @@ a model
 class ModelTrainer:
     def __init__(self, ):
         self.DP = DataProcessing()
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne()
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo()
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -104,7 +104,7 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig('../figures/split1/error.png')
+        trainLoss.savefig('../figures/trunc64/split2/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -124,7 +124,7 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/split1/indivAnthro/" + str(i) + ".png"
+            figlabel = "../figures/trunc64/split2/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -156,6 +156,6 @@ class ModelTrainer:
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/split1/test/{i}_pred.png')
+                prediction.savefig(f'../figures/trunc64/split2/test/{i}_pred.png')
                 plt.close()
         return lossAnthro
