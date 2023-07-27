@@ -11,7 +11,7 @@ a model
 class ModelTrainer:
     def __init__(self, ):
         self.DP = DataProcessing()
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo()
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne()
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -28,6 +28,8 @@ class ModelTrainer:
         anthro_valid = self.Y_valid
         X_valid = self.X_valid
         anthro_valid = self.Y_valid
+        X_test = self.X_test
+        anthro_test = self.Y_test
         # Set loss function
         criterion = nn.MSELoss()
         #Choose Adam Optimizer, learning rate
@@ -36,8 +38,10 @@ class ModelTrainer:
         epochs = 80
         train_losses = []
         val_losses = []
+        test_losses = []
         mse_train_data = []
         mse_validation_data = []
+        mse_test_data = []
         min_valid_loss = np.inf
         for i in range(epochs):
             model.train()
@@ -73,6 +77,17 @@ class ModelTrainer:
                 valid_loss = lossValAnthro.item()
 
                 print(f'Epoch {i+1} \t\t Training Loss: {train_loss} \t\t Validation Loss: {valid_loss}')
+
+                # Find loss on test set
+                anthro_test_pred = model(X_test)
+                lossTestAnthro = criterion(anthro_test_pred, anthro_test)
+
+                test_losses.append(lossTestAnthro.detach().numpy())
+
+                # get individual MSE's for testing
+                test_output = torch.mean((anthro_test_pred - anthro_test)**2, dim=0)
+                mse_test_data.append(np.array(test_output.detach().numpy()))
+
             # Update validation loss
             if min_valid_loss > lossValAnthro:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
@@ -84,10 +99,12 @@ class ModelTrainer:
         trainLoss = plt.figure()
         plt.plot(range(epochs), train_losses, label = "training losses")
         plt.plot(range(epochs), val_losses, label = "validation losses")
+        plt.plot(range(epochs), test_losses, label = "test losses")
+        plt.legend(loc="upper right")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig('../figures/split2/error.png')
+        trainLoss.savefig('../figures/split1/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -95,15 +112,19 @@ class ModelTrainer:
             anthroMSE = plt.figure()
             mse_train_data = np.array(mse_train_data)
             mse_validation_data = np.array(mse_validation_data)
+            mse_test_data = np.array(mse_test_data)
             mse_train = mse_train_data[:, i]
             mse_valid = mse_validation_data[:, i]
+            mse_test = mse_test_data[:, i]
 
             plt.plot(range(epochs), mse_train, label = "training data")
             plt.plot(range(epochs), mse_valid, label = "validation data")
+            plt.plot(range(epochs), mse_test, label = "test data")
+            plt.legend(loc="upper right")
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/split2/indivAnthro/" + str(i) + ".png"
+            figlabel = "../figures/split1/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -131,9 +152,10 @@ class ModelTrainer:
                     anthro_test_at_i.append(anthro_test[j][i])
                 plt.plot(range(len(anthro_eval)), anthro_eval_at_i, label = "prediction")
                 plt.plot(range(len(anthro_test)), anthro_test_at_i, label = "actual")
+                plt.legend(loc="upper right")
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/split2/test/{i}_pred.png')
+                prediction.savefig(f'../figures/split1/test/{i}_pred.png')
                 plt.close()
         return lossAnthro
