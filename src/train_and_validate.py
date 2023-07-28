@@ -9,9 +9,12 @@ This class contains methods relevant towards training
 a model
 '''
 class ModelTrainer:
-    def __init__(self, ):
+    def __init__(self, splitType, dataType):
         self.DP = DataProcessing()
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne()
+        self.splitType = splitType
+        self.dataType = dataType
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne(dataType) if splitType == "split1" else self.DP.dataSplitTypeTwo(dataType)
+        print(np.shape(hrir_train))
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -104,7 +107,7 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig('../figures/HRTF/split1/error.png')
+        trainLoss.savefig(f'../figures/{self.dataType}/{self.splitType}/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -124,7 +127,7 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = "../figures/HRTF/split1/indivAnthro/" + str(i) + ".png"
+            figlabel = f"../figures/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -156,6 +159,6 @@ class ModelTrainer:
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/HRTF/split1/test/{i}_pred.png')
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/{i}_pred.png')
                 plt.close()
         return lossAnthro

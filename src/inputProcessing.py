@@ -12,13 +12,13 @@ class InputProcessing:
         pass
 
     # return an array representing the hrir from a single subject
-    def extractSingleHRIR(self, subject_num: int, plot: bool):
+    def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset_right = f[subject]['hrir_r']['trunc_64']
-            dset_left = f[subject]['hrir_l']['trunc_64']
+            dset_right = f[subject]['hrir_r']['raw'] if dataType == "raw" else f[subject]['hrir_r']['trunc_64'] 
+            dset_left = f[subject]['hrir_l']['raw'] if dataType == "raw" else f[subject]['hrir_l']['trunc_64']
             row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf = self.FourierTransform(row_left)
@@ -47,7 +47,9 @@ class InputProcessing:
             plt.title(f"Center HRTF Plot for subject {subject_num}")
             plt.show()
             plt.close() 
-        return single_hrtf
+        if dataType == "HRTF":
+            return single_hrtf
+        return single_hrir
     
     # return an array representing the positions of a single subject
     def extractSinglePos(self, subject_num: int):
@@ -62,8 +64,8 @@ class InputProcessing:
         return doubled_row
     
     # return an array with hrir and position of a single subject
-    def extractSingleHrirAndPos(self, subject_num: int):
-        hrir = self.extractSingleHRIR(subject_num, False)
+    def extractSingleHrirAndPos(self, subject_num: int, dataType):
+        hrir = self.extractSingleHRIR(subject_num, False, dataType)
         pos = self.extractSinglePos(subject_num)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
@@ -96,11 +98,11 @@ class InputProcessing:
         return combinedAnthro
      
     # extract HRIR and Pos for all subjects in subjects list
-    def extractHrirPos(self, subjects):
+    def extractHrirPos(self, subjects, dataType):
         # get first hrir, pos vector
-        hrir_pos = self.extractSingleHrirAndPos(subjects[0])
+        hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         for subject in subjects[1:]:
-            currArray = self.extractSingleHrirAndPos(subject)
+            currArray = self.extractSingleHrirAndPos(subject, dataType)
             hrir_pos = np.vstack((hrir_pos, currArray))
         return hrir_pos
     
@@ -114,13 +116,13 @@ class InputProcessing:
         return anthro
 
     # extract both hrir_pos and anthro for all subjects in subjects
-    def extractData(self, subjects):
+    def extractData(self, subjects, dataType):
         # get first hrir, pos vector
-        hrir_pos = self.extractSingleHrirAndPos(subjects[0])
+        hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)
         for subject in subjects[1:]:
-            currHrirPosArray = self.extractSingleHrirAndPos(subject)
+            currHrirPosArray = self.extractSingleHrirAndPos(subject, dataType)
             currAnthroArray = self.extractSingleAnthro(subject, True)
             hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
             anthro = np.vstack((anthro, currAnthroArray))

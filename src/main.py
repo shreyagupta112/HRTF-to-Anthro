@@ -7,9 +7,16 @@ import math
 
 class Main:
 
-    def __init__(self):
-        self.model = Model()
-        self.trainer = ModelTrainer()
+    def __init__(self, splitType, dataType):
+        self.splitType = splitType
+        self.dataType = dataType
+        if dataType == "HRTF":
+            self.model = Model(36)
+        elif dataType == "raw":
+            self.model = Model(203)
+        else:
+            self.model = Model(67)
+        self.trainer = ModelTrainer(splitType, dataType)
         self.inputProcessing = InputProcessing()
         self.dataProcessing = DataProcessing()
 
@@ -33,7 +40,7 @@ class Main:
         for subject in validSubjects:
             with torch.no_grad():
                 # Make prediction
-                input = torch.tensor(self.inputProcessing.extractHrirPos([subject])).to(torch.float32) 
+                input = torch.tensor(self.inputProcessing.extractHrirPos([subject], self.dataType)).to(torch.float32) 
                 anthro_pred_left = self.model.forward(input[0:1250])
                 anthro_pred_right = self.model.forward(input[1250:])
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
@@ -52,14 +59,14 @@ class Main:
             index = math.floor(i/2)
             if i % 2 == 0:
                 plt.title(f"Anthro Prediction for Subject {validSubjects[index]} Right Ear")
-                prediction.savefig(f'../figures/HRTF/split1/predictions/{validSubjects[index]}_right_pred.png')
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{validSubjects[index]}_right_pred.png')
             else:
                 plt.title(f"Anthro Prediction for Subject {validSubjects[index]} Left Ear") 
-                prediction.savefig(f'../figures/HRTF/split1/predictions/{validSubjects[index]}_left_pred.png')
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{validSubjects[index]}_left_pred.png')
             plt.close()
 
 
 
-main = Main()
+main = Main("split1", "HRTF")
 main.trainAndTest()
 main.predictAnthro()
