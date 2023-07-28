@@ -42,13 +42,13 @@ class DataProcessing:
     def dataSplitTypeTwo(self):
         # Get first split
         first_X = self.IP.extractSingleHrirAndPos(self.validSubjects[0])
-        first_Y = self.IP.extractSingleAnthro(self.validSubjects[0])
+        first_Y = self.IP.extractSingleAnthro(self.validSubjects[0], True)
         X_train, X_test, Y_train, Y_test = train_test_split(first_X, first_Y, test_size=0.3, random_state=41)
         X_valid, X_test, Y_valid, Y_test = train_test_split(X_test, Y_test, test_size=0.33, random_state=41)
         # Get all other subject data
         for subject in self.validSubjects[1:]:
             curr_X = self.IP.extractSingleHrirAndPos(subject)
-            curr_Y = self.IP.extractSingleAnthro(subject)
+            curr_Y = self.IP.extractSingleAnthro(subject, True)
             currX_train, currX_test, currY_train, currY_test = train_test_split(curr_X, curr_Y, test_size=0.3, random_state=41)
             currX_valid, currX_test, currY_valid, currY_test = train_test_split(currX_test, currY_test, test_size=0.33, random_state=41) 
             X_train = np.vstack((X_train, currX_train))

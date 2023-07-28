@@ -25,7 +25,8 @@ class InputProcessing:
             right_hrtf = self.FourierTransform(row_right)
         single_hrir = np.vstack((row_left, row_right))
         single_hrtf = np.vstack((left_hrtf, right_hrtf))
-        
+
+        # Plot hrir and hrtf 
         if plot:
             hrir_plot = plt.figure()
             plt.plot(range(len(row_left[624])), row_left[624], label = "left hrir")
@@ -68,7 +69,7 @@ class InputProcessing:
         return hrir_pos
     
     # return an array representing the anthropometric data from a single subject
-    def extractSingleAnthro(self, subject_num):
+    def extractSingleAnthro(self, subject_num, stack: bool):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -82,15 +83,18 @@ class InputProcessing:
             right_pinna = np.array(dset.attrs['theta'])[2:]
             
             left_row = np.hstack((left_ear, left_pinna))
-            leftAnthro = np.tile(left_row, (1250, 1))
-
             right_row = np.hstack((right_ear, right_pinna))
-            rightAnthro = np.tile(right_row, (1250, 1))
 
-            combinedAnthro = np.vstack((leftAnthro, rightAnthro))
+            if stack:
+                leftAnthro = np.tile(left_row, (1250, 1))
+                rightAnthro = np.tile(right_row, (1250, 1)) 
+                combinedAnthro = np.vstack((leftAnthro, rightAnthro))
+                return combinedAnthro
+            
+            combinedAnthro = np.vstack((left_row, right_row))
             
         return combinedAnthro
-    
+     
     # extract HRIR and Pos for all subjects in subjects list
     def extractHrirPos(self, subjects):
         # get first hrir, pos vector
@@ -101,11 +105,11 @@ class InputProcessing:
         return hrir_pos
     
     # extract Anthro data for all subjects in subjects
-    def extractAnthro(self, subjects):
+    def extractAnthro(self, subjects, stack: bool):
         # get first anthro vector
-        anthro = self.extractSingleAnthro(subjects[0])
+        anthro = self.extractSingleAnthro(subjects[0], stack)
         for subject in subjects[1:]:
-            currArray = self.extractSingleAnthro(subject)
+            currArray = self.extractSingleAnthro(subject, stack)
             anthro = np.vstack((anthro, currArray))
         return anthro
 
@@ -114,10 +118,10 @@ class InputProcessing:
         # get first hrir, pos vector
         hrir_pos = self.extractSingleHrirAndPos(subjects[0])
         # get first anthro vector
-        anthro = self.extractSingleAnthro(subjects[0])
+        anthro = self.extractSingleAnthro(subjects[0], True)
         for subject in subjects[1:]:
             currHrirPosArray = self.extractSingleHrirAndPos(subject)
-            currAnthroArray = self.extractSingleAnthro(subject)
+            currAnthroArray = self.extractSingleAnthro(subject, True)
             hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
             anthro = np.vstack((anthro, currAnthroArray))
         return hrir_pos, anthro
