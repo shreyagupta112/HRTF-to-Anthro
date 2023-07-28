@@ -3,3 +3,6 @@ data/cipic.hdf5
 
 #File is used for learning pytorch
 src/network/test.py
+
+#Ignore random mac file
+**/.DS_Store

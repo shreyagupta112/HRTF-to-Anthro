@@ -8,7 +8,7 @@ This class represents the model architecture used for
 this simple model
 
 One input vectors:
-    HRIR of left ear + Src Position: 1 x 64
+    HRTF of left ear + Src Position: 1 x 36
     
 Output Vectors:
     Ear Anthro Measurements: 1 x 10
