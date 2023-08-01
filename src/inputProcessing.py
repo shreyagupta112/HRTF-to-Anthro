@@ -70,6 +70,7 @@ class InputProcessing:
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
     
+    # Make it zero mean unit variance normalization
     # return an array representing the anthropometric data from a single subject
     def extractSingleAnthro(self, subject_num, stack: bool):
         subject = 'subject_' + str(subject_num).zfill(3)

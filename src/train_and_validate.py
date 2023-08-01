@@ -11,17 +11,28 @@ a model
 class ModelTrainer:
     def __init__(self, splitType, dataType):
         self.DP = DataProcessing()
+        self.validSubjects = self.DP.validSubjects
         self.splitType = splitType
         self.dataType = dataType
-        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne(dataType) if splitType == "split1" else self.DP.dataSplitTypeTwo(dataType)
-        print(np.shape(hrir_train))
+        # Should change this so that we don't have to extract data everytime we want to change
+        # Processed data should be written to some file (csv ?)
+        if splitType == "split1":
+            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test, trainSubjects, validSubjects, testSubjects = self.DP.dataSplitTypeOne(dataType)
+            self.trainSubjects = trainSubjects
+            self.validSubjects = validSubjects
+            self.testSubjects = testSubjects
+        else:
+            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo(dataType)
+            self.trainSubjects = []
+            self.validSubjects = []
+            self.testSubjects = []
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
         self.Y_train = anthro_train
         self.Y_valid = anthro_valid
         self.Y_test = anthro_test
-       
+        
     # Method to train the model
     def trainModel(self, model):
         # Get training data
