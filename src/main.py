@@ -17,35 +17,45 @@ class Main:
             self.model = Model(203)
         else:
             self.model = Model(67)
-        self.trainer = ModelTrainer(splitType, dataType)
         self.inputProcessing = InputProcessing()
+        self.dataProcessing = DataProcessing()
+        self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+                         148, 152, 153, 154, 155, 156, 162, 163, 165]
 
     # This method will train and test the model
     def trainAndTest(self):
 
+        trainer = ModelTrainer(self.splitType, self.dataType)
+        
         torch.manual_seed(41)
 
-        self.trainer.trainModel(self.model)
+        trainer.trainModel(self.model)
 
-        mse = self.trainer.testModel(self.model)
+        # mse = trainer.testModel(self.model)
 
-        print(mse)
+        # print(mse)
     # This method will make a prediction for all valid subjects
     def predictAnthro(self):
-        validSubjects = self.trainer.validSubjects
-        trainSubjects = self.trainer.trainSubjects
-        validationSubjects = self.trainer.validSubjects
-        testSubjects = self.trainer.testSubjects
+        validSubjects = self.validSubjects
+        trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
         actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False)
         
+        model = Model()
+        if self.dataType == "trunc64":
+            model = Model(67)
+        if self.dataType == "raw":
+            model = Model(203)
+
+        torch.save(model.state_dict(), 'saved_model.pth')
 
         for subject in validSubjects:
             with torch.no_grad():
                 # Make prediction
                 input = torch.tensor(self.inputProcessing.extractHrirPos([subject], self.dataType)).to(torch.float32) 
-                anthro_pred_left = self.model.forward(input[0:1250])
-                anthro_pred_right = self.model.forward(input[1250:])
+                anthro_pred_left = model.forward(input[0:1250])
+                anthro_pred_right = model.forward(input[1250:])
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
                 anthro_pred_right = torch.mean(anthro_pred_right, dim=0)
                 anthro_prediction.append(anthro_pred_left)
@@ -120,5 +130,5 @@ class Main:
 
 main = Main("split1", "HRTF")
 # main.deletePredictionFiles()
-main.trainAndTest()
+# main.trainAndTest()
 main.predictAnthro()

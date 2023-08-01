@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 from inputProcessing import *
+import re
 
 # Class to deal with data processing
 # Should only be constructed when training the model
@@ -12,6 +13,9 @@ class DataProcessing:
         self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
                          148, 152, 153, 154, 155, 156, 162, 163, 165]
+    
+    # create Subject splits and write it to the txt file
+    def createSubjectSplit(self):
         total_subjects = len(self.validSubjects)
 
         trainSize = int(0.7 * total_subjects)
@@ -23,10 +27,13 @@ class DataProcessing:
         self.validationSubjects = shuffled_data[trainSize:validSize+trainSize]
         self.testSubjects = shuffled_data[trainSize + validSize:] 
 
+
         self.writeSplits(self.trainSubjects, self.validationSubjects, self.testSubjects)
-    
+
     # Split data by subjects: 70% of subjects for train, 20% of subjects for validation, 10% for testing
     def dataSplitTypeOne(self, dataType):
+
+        self.createSubjectSplit()
 
         X_train, Y_train = self.IP.extractData(self.trainSubjects, dataType)
         X_valid, Y_valid = self.IP.extractData(self.validationSubjects, dataType)
@@ -70,13 +77,29 @@ class DataProcessing:
         return X_train, X_valid, X_test, Y_train, Y_valid, Y_test
 
 
-    # write the data to a csv for further analysis and reference
-    def writeSplits(self, train, test, validation):
+    # write the subject split data to a txt file
+    def writeSplits(self, train, validation, test):
         with open("splitData.txt", "w") as file:
             file.write(f"{train}\n")
             file.write(f"{validation}\n")
             file.write(f"{test}\n")
+    
+    # read the subject split data to a txt file
+    def readSplits(self):
+        with open('splitData.txt', 'r') as file:
+            listContent = file.read()
 
+        pattern = r'\d+'
 
-DP = DataProcessing()
-DP.dataSplitTypeOne("HRTF")
+        lists = []
+
+        for line in listContent.strip().split('\n'):
+            values = re.findall(pattern, line)
+            int_values = [int(val) for val in values]
+            lists.append(int_values)
+
+        train = lists[0] + lists[1]
+        validation = lists[2]
+        test = lists[3]
+        return train, validation, test
+

@@ -17,10 +17,8 @@ class ModelTrainer:
         # Should change this so that we don't have to extract data everytime we want to change
         # Processed data should be written to some file (csv ?)
         if splitType == "split1":
-            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test, trainSubjects, validSubjects, testSubjects = self.DP.dataSplitTypeOne(dataType)
-            self.trainSubjects = trainSubjects
-            self.validSubjects = validSubjects
-            self.testSubjects = testSubjects
+            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne(dataType)
+            self.trainSubjects, self.validationSubjects, self.testSubjects = self.DP.readSplits()
         else:
             hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo(dataType)
             self.trainSubjects = []
@@ -32,6 +30,10 @@ class ModelTrainer:
         self.Y_train = anthro_train
         self.Y_valid = anthro_valid
         self.Y_test = anthro_test
+
+        print(self.trainSubjects)
+        print(self.validationSubjects)
+        print(self.testSubjects)
         
     # Method to train the model
     def trainModel(self, model):
@@ -148,8 +150,10 @@ class ModelTrainer:
 
      # Method to test the model
     def testModel(self, model):
+        # Load model from saved Path
         X_test = self.X_test
         anthro_test = self.Y_test
+        
         criterion = nn.MSELoss()
         with torch.no_grad():
             # calculate MSE for whole predicition vector
