@@ -36,7 +36,7 @@ class Model(nn.Module):
     
     # Function to propagate forward
     def forward(self, hrir_l):
-
+        # Make activation functions tanh
         layer1 = F.relu(self.fc1(hrir_l))
         layer2 = F.relu(self.fc2(layer1))
         layer3 = F.relu(self.fc3(layer2))

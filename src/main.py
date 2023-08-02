@@ -4,6 +4,7 @@ from inputProcessing import *
 import torch
 import numpy as np
 import math
+import os
 
 class Main:
 
@@ -16,33 +17,50 @@ class Main:
             self.model = Model(203)
         else:
             self.model = Model(67)
-        self.trainer = ModelTrainer(splitType, dataType)
         self.inputProcessing = InputProcessing()
         self.dataProcessing = DataProcessing()
+        self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+                         148, 152, 153, 154, 155, 156, 162, 163, 165]
+        self.trainer = ModelTrainer(self.splitType, self.dataType)
 
-    # This method will train and test the model
-    def trainAndTest(self):
-
+    # This method will train the model
+    def train(self):
+        
         torch.manual_seed(41)
 
         self.trainer.trainModel(self.model)
 
-        mse = self.trainer.testModel(self.model)
+    # This method will test the model
+    def test(self, modelPath):
+        mse = self.trainer.testModel(modelPath)
 
         print(mse)
+
     # This method will make a prediction for all valid subjects
-    def predictAnthro(self):
-        validSubjects = self.dataProcessing.validSubjects
+    def predictAnthro(self, modelPath):
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/train")
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/validation")
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/test")
+        validSubjects = self.validSubjects
+        trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
         actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False)
         
+        model = Model()
+        if self.dataType == "trunc64":
+            model = Model(67)
+        if self.dataType == "raw":
+            model = Model(203)
+
+        model.load_state_dict(torch.load(modelPath))
 
         for subject in validSubjects:
             with torch.no_grad():
                 # Make prediction
                 input = torch.tensor(self.inputProcessing.extractHrirPos([subject], self.dataType)).to(torch.float32) 
-                anthro_pred_left = self.model.forward(input[0:1250])
-                anthro_pred_right = self.model.forward(input[1250:])
+                anthro_pred_left = model.forward(input[0:1250])
+                anthro_pred_right = model.forward(input[1250:])
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
                 anthro_pred_right = torch.mean(anthro_pred_right, dim=0)
                 anthro_prediction.append(anthro_pred_left)
@@ -57,16 +75,42 @@ class Main:
             plt.ylabel("Measurement")
             plt.xlabel("Anthro Point")
             index = math.floor(i/2)
-            if i % 2 == 0:
-                plt.title(f"Anthro Prediction for Subject {validSubjects[index]} Right Ear")
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{validSubjects[index]}_right_pred.png')
+            subjectNum = validSubjects[index]
+            group = "N/A"
+            if subjectNum in trainSubjects:
+                group = "train"
+            elif subjectNum in validationSubjects:
+                group = "validation"
+            elif subjectNum in testSubjects:
+                group = "test"
             else:
-                plt.title(f"Anthro Prediction for Subject {validSubjects[index]} Left Ear") 
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{validSubjects[index]}_left_pred.png')
+                group = "N/A"
+            if i % 2 == 0:
+                plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear")
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
+            else:
+                plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear") 
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
             plt.close()
+    
+
+    def deletePredictionFiles(self, files):
+
+        theFiles = os.listdir(files)
+
+        for file in theFiles:
+            filePath = os.path.join(files, file)
+            try:
+                if os.path.isfile(filePath):
+                    os.remove(filePath)
+            except Exception as e:
+                print(f"Could not delete file {filePath}")
+        
+
 
 
 
 main = Main("split1", "HRTF")
-main.trainAndTest()
-main.predictAnthro()
+# main.train()
+main.test('saved_model.pth')
+main.predictAnthro('saved_model.pth')

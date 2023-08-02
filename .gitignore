@@ -6,3 +6,6 @@ src/network/test.py
 
 #Ignore random mac file
 **/.DS_Store
+
+# Ignore test split file
+src/splitData.txt
