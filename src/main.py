@@ -22,21 +22,26 @@ class Main:
         self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
                          148, 152, 153, 154, 155, 156, 162, 163, 165]
+        self.trainer = ModelTrainer(self.splitType, self.dataType)
 
-    # This method will train and test the model
-    def trainAndTest(self):
-
-        trainer = ModelTrainer(self.splitType, self.dataType)
+    # This method will train the model
+    def train(self):
         
         torch.manual_seed(41)
 
-        trainer.trainModel(self.model)
+        self.trainer.trainModel(self.model)
 
-        # mse = trainer.testModel(self.model)
+    # This method will test the model
+    def test(self, modelPath):
+        mse = self.trainer.testModel(modelPath)
 
-        # print(mse)
+        print(mse)
+
     # This method will make a prediction for all valid subjects
-    def predictAnthro(self):
+    def predictAnthro(self, modelPath):
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/train")
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/validation")
+        self.deletePredictionFiles("../figures/HRTF/split1/predictions/test")
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
@@ -48,7 +53,7 @@ class Main:
         if self.dataType == "raw":
             model = Model(203)
 
-        torch.save(model.state_dict(), 'saved_model.pth')
+        model.load_state_dict(torch.load(modelPath))
 
         for subject in validSubjects:
             with torch.no_grad():
@@ -89,46 +94,23 @@ class Main:
             plt.close()
     
 
-    '''
-    def deletePredictionFiles(self):
-        trainFilePath = "../figures/HRTF/split1/predictions/train"
-        validFilePath = "../figures/HRTF/split1/predictions/validation"
-        testFilePath = "../figures/HRTF/split1/predictions/test" 
+    def deletePredictionFiles(self, files):
 
-        trainFiles = os.listdir(trainFilePath)
-        validFiles = os.listdir(validFilePath)
-        testFiles = os.listdir(testFilePath) 
+        theFiles = os.listdir(files)
 
-        for file in trainFiles:
-            filePath = os.path.join(trainFilePath, file)
+        for file in theFiles:
+            filePath = os.path.join(files, file)
             try:
                 if os.path.isfile(filePath):
                     os.remove(filePath)
             except Exception as e:
                 print(f"Could not delete file {filePath}")
-        
-        for file in validFiles:
-            filePath = os.path.join(trainFilePath, file)
-            try:
-                if os.path.isfile(filePath):
-                    os.remove(filePath)
-            except Exception as e:
-                print(f"Could not delete file {filePath}")
-        
-        for file in testFiles:
-            filePath = os.path.join(trainFilePath, file)
-            try:
-                if os.path.isfile(filePath):
-                    os.remove(filePath)
-            except Exception as e:
-                print(f"Could not delete file {filePath}")
-    '''
         
 
 
 
 
 main = Main("split1", "HRTF")
-# main.deletePredictionFiles()
-# main.trainAndTest()
-main.predictAnthro()
+# main.train()
+main.test('saved_model.pth')
+main.predictAnthro('saved_model.pth')

@@ -3,6 +3,7 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 from inputProcessing import *
 import numpy as np
+from model import *
 from dataProcessing import *
 '''
 This class contains methods relevant towards training
@@ -14,16 +15,12 @@ class ModelTrainer:
         self.validSubjects = self.DP.validSubjects
         self.splitType = splitType
         self.dataType = dataType
-        # Should change this so that we don't have to extract data everytime we want to change
-        # Processed data should be written to some file (csv ?)
-        if splitType == "split1":
-            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne(dataType)
-            self.trainSubjects, self.validationSubjects, self.testSubjects = self.DP.readSplits()
-        else:
-            hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeTwo(dataType)
-            self.trainSubjects = []
-            self.validSubjects = []
-            self.testSubjects = []
+        
+    # Method to train the model
+    def trainModel(self, model):
+        hrir_train, hrir_valid, hrir_test, anthro_train, anthro_valid, anthro_test = self.DP.dataSplitTypeOne(self.dataType)
+        self.trainSubjects, self.validationSubjects, self.testSubjects = self.DP.readSplits()
+        
         self.X_train = hrir_train
         self.X_valid = hrir_valid
         self.X_test = hrir_test
@@ -34,9 +31,7 @@ class ModelTrainer:
         print(self.trainSubjects)
         print(self.validationSubjects)
         print(self.testSubjects)
-        
-    # Method to train the model
-    def trainModel(self, model):
+
         # Get training data
         X_train = self.X_train
         anthro_train = self.Y_train
@@ -149,11 +144,23 @@ class ModelTrainer:
             plt.close()
 
      # Method to test the model
-    def testModel(self, model):
+    def testModel(self, modelPath):
         # Load model from saved Path
-        X_test = self.X_test
-        anthro_test = self.Y_test
+
+        train, validation, test = self.DP.readSplits()
+
+        X_test, anthro_test = InputProcessing().extractData(test, self.dataType)
+        X_test = torch.tensor(X_test).to(torch.float32)
+        anthro_test = torch.tensor(anthro_test).to(torch.float32)
         
+        model = Model()
+        if self.dataType == "trunc64":
+            model = Model(67)
+        if self.dataType == "raw":
+            model = Model(203)
+
+        model.load_state_dict(torch.load(modelPath))
+
         criterion = nn.MSELoss()
         with torch.no_grad():
             # calculate MSE for whole predicition vector
