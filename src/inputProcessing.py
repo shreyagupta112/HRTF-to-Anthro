@@ -26,30 +26,6 @@ class InputProcessing:
         single_hrir = np.vstack((row_left, row_right))
         single_hrtf = np.vstack((left_hrtf, right_hrtf))
 
-        # Plot hrir and hrtf 
-        if plot:
-            hrir_plot = plt.figure()
-            plt.plot(range(len(row_left[624])), row_left[624], label = "left hrir")
-            plt.plot(range(len(row_right[624])), row_right[624], label = "right hrir")
-            plt.legend(loc="upper right")
-            plt.ylabel("HRIR")
-            plt.xlabel("Time")
-            plt.title(f"Center HRIR Plot for subject {subject_num}")
-            plt.show()
-            plt.close()
-
-            hrtf_plot = plt.figure()
-            plt.plot(range(len(left_hrtf[624])), left_hrtf[624], label = "left hrtf")
-            plt.plot(range(len(right_hrtf[624])), right_hrtf[624], label = "right hrtf")
-            plt.legend(loc="upper right")
-            plt.ylabel("HRTF")
-            plt.xlabel("Frequency")
-            plt.title(f"Center HRTF Plot for subject {subject_num}")
-            plt.show()
-            plt.close() 
-        if dataType == "HRTF":
-            return single_hrtf
-        return single_hrir
     
     # return an array representing the positions of a single subject
     def extractSinglePos(self, subject_num: int):
