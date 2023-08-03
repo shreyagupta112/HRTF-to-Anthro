@@ -184,3 +184,30 @@ class ModelTrainer:
                 prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/{i}_pred.png')
                 plt.close()
         return lossAnthro
+
+    def plotHRIR(subject, position):
+        hrir = InputProcessing().extractSingleHRIR(subject, "HRIR")
+        hrir_plot = plt.figure()
+        print(len(hrir), len(hrir[0]))
+        plt.plot(range(len(hrir[:1250][position])), hrir[:1250][position], label = "left hrir")
+        plt.plot(range(len(hrir[1250:][position])), hrir[1250:][position], label = "right hrir")
+        plt.legend(loc="upper right")
+        plt.ylabel("HRIR")
+        plt.xlabel("Time")
+        plt.title(f"Center HRIR Plot for subject {subject} at position {position}")
+        plt.show()
+        plt.close()
+    def plotHRTF(subject, position):
+        hrtf = InputProcessing().extractSingleHRIR(subject, "HRTF")
+        hrtf_plot = plt.figure()
+        print(len(hrtf), len(hrtf[0]))
+        plt.plot(range(len(hrtf[:1250][position])), hrtf[:1250][position], label = "left hrir")
+        plt.plot(range(len(hrtf[1250:][position])), hrtf[1250:][position], label = "right hrir")
+        plt.legend(loc="upper right")
+        plt.ylabel("HRTF")
+        plt.xlabel("Frequency")
+        plt.title(f"Center HRTF Plot for subject {subject} at position {position}")
+        plt.show()
+        plt.close()
+
+   

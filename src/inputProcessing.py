@@ -12,13 +12,14 @@ class InputProcessing:
         pass
 
     # return an array representing the hrir from a single subject
-    def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str):
+    def extractSingleHRIR(self, subject_num: int, dataType: str):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
             dset_right = f[subject]['hrir_r']['raw'] if dataType == "raw" else f[subject]['hrir_r']['trunc_64'] 
             dset_left = f[subject]['hrir_l']['raw'] if dataType == "raw" else f[subject]['hrir_l']['trunc_64']
+            print(len(dset_right), len(dset_right[0]))
             row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf = self.FourierTransform(row_left)
@@ -27,26 +28,6 @@ class InputProcessing:
         single_hrtf = np.vstack((left_hrtf, right_hrtf))
 
         # Plot hrir and hrtf 
-        if plot:
-            hrir_plot = plt.figure()
-            plt.plot(range(len(row_left[624])), row_left[624], label = "left hrir")
-            plt.plot(range(len(row_right[624])), row_right[624], label = "right hrir")
-            plt.legend(loc="upper right")
-            plt.ylabel("HRIR")
-            plt.xlabel("Time")
-            plt.title(f"Center HRIR Plot for subject {subject_num}")
-            plt.show()
-            plt.close()
-
-            hrtf_plot = plt.figure()
-            plt.plot(range(len(left_hrtf[624])), left_hrtf[624], label = "left hrtf")
-            plt.plot(range(len(right_hrtf[624])), right_hrtf[624], label = "right hrtf")
-            plt.legend(loc="upper right")
-            plt.ylabel("HRTF")
-            plt.xlabel("Frequency")
-            plt.title(f"Center HRTF Plot for subject {subject_num}")
-            plt.show()
-            plt.close() 
         if dataType == "HRTF":
             return single_hrtf
         return single_hrir
