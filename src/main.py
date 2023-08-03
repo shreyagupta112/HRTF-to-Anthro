@@ -33,15 +33,16 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
+        self.deleteFiles(f'../figures/HRTF/split1/test')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
 
     # This method will make a prediction for all valid subjects
     def predictAnthro(self, modelPath):
-        self.deletePredictionFiles("../figures/HRTF/split1/predictions/train")
-        self.deletePredictionFiles("../figures/HRTF/split1/predictions/validation")
-        self.deletePredictionFiles("../figures/HRTF/split1/predictions/test")
+        self.deleteFiles("../figures/HRTF/split1/predictions/train")
+        self.deleteFiles("../figures/HRTF/split1/predictions/validation")
+        self.deleteFiles("../figures/HRTF/split1/predictions/test")
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
@@ -94,7 +95,7 @@ class Main:
             plt.close()
     
 
-    def deletePredictionFiles(self, files):
+    def deleteFiles(self, files):
 
         theFiles = os.listdir(files)
 

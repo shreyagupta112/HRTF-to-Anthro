@@ -25,6 +25,11 @@ class InputProcessing:
             right_hrtf = self.FourierTransform(row_right)
         single_hrir = np.vstack((row_left, row_right))
         single_hrtf = np.vstack((left_hrtf, right_hrtf))
+        if dataType == "HRTF":
+            return single_hrtf
+        else:
+            return single_hrir
+
 
     
     # return an array representing the positions of a single subject
