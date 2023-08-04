@@ -152,6 +152,14 @@ class ModelTrainer:
         X_test, anthro_test = InputProcessing().extractData(test, self.dataType)
         X_test = torch.tensor(X_test).to(torch.float32)
         anthro_test = torch.tensor(anthro_test).to(torch.float32)
+
+        X_validation, anthro_validation = InputProcessing().extractData(validation, self.dataType)
+        X_validation = torch.tensor(X_validation).to(torch.float32)
+        anthro_validation = torch.tensor(anthro_validation).to(torch.float32) 
+
+        X_train, anthro_train = InputProcessing().extractData(train, self.dataType)
+        X_train = torch.tensor(X_train).to(torch.float32)
+        anthro_train = torch.tensor(anthro_train).to(torch.float32)
         
         model = Model()
         if self.dataType == "trunc64":
@@ -165,7 +173,11 @@ class ModelTrainer:
         
         lossTest = self.createTestPlot(model, criterion, "test", test, X_test, anthro_test)
 
-        return lossTest
+        validationTest = self.createTestPlot(model, criterion, "validation", validation, X_validation, anthro_validation) 
+
+        trainTest = self.createTestPlot(model, criterion, "train", train, X_train, anthro_train)
+
+        return lossTest, validationTest, trainTest
     
     def createTestPlot(self, model, lossFn, split, splitList, hrtf, anthro):
         with torch.no_grad():

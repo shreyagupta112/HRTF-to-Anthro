@@ -33,7 +33,9 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
-        self.deleteFiles(f'../figures/HRTF/split1/test')
+        self.deleteFiles(f'../figures/HRTF/split1/test/test')
+        self.deleteFiles(f'../figures/HRTF/split1/test/train')
+        self.deleteFiles(f'../figures/HRTF/split1/test/validation')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
