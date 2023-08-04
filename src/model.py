@@ -37,15 +37,15 @@ class Model(nn.Module):
     # Function to propagate forward
     def forward(self, hrir_l):
         # Make activation functions tanh
-        layer1 = F.relu(self.fc1(hrir_l))
-        layer2 = F.relu(self.fc2(layer1))
-        layer3 = F.relu(self.fc3(layer2))
-        layer4 = F.relu(self.fc4(layer3))
-        layer5 = F.relu(self.fc5(layer4))
-        layer6 = F.relu(self.fc6(layer5))
-        layer7 = F.relu(self.fc7(layer6))
-        layer8 = F.relu(self.fc8(layer7))
-        layer9 = F.relu(self.fc9(layer8))
+        layer1 = F.tanh(self.fc1(hrir_l))
+        layer2 = F.tanh(self.fc2(layer1))
+        layer3 = F.tanh(self.fc3(layer2))
+        layer4 = F.tanh(self.fc4(layer3))
+        layer5 = F.tanh(self.fc5(layer4))
+        layer6 = F.tanh(self.fc6(layer5))
+        layer7 = F.tanh(self.fc7(layer6))
+        layer8 = F.tanh(self.fc8(layer7))
+        layer9 = F.tanh(self.fc9(layer8))
 
         Ear_Anthro = self.fc_output(layer9)
 

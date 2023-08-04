@@ -104,7 +104,7 @@ class ModelTrainer:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
                 min_valid_loss = lossValAnthro
                 # save current state of model
-                torch.save(model.state_dict(), 'saved_model.pth')
+                torch.save(model.state_dict(), 'saved_model_tanh.pth')
 
         # Plot total error per epoch
         trainLoss = plt.figure()
@@ -115,7 +115,9 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig(f'../figures/{self.dataType}/{self.splitType}/error.png')
+        if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}'):
+            os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}')
+        trainLoss.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -135,7 +137,9 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = f"../figures/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
+            if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro'):
+                os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro')
+            figlabel = f"../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -202,8 +206,14 @@ class ModelTrainer:
                     plt.legend(loc="upper right")
                     plt.ylabel("Measurement")
                     plt.xlabel("HRIR")
-                    plt.title(f"Anthro Prediction for {split} subject {subject}'s measurement {i}")
-                    prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/{split}/Subject{subject}_Pos{i}pred.png')
+                    plt.title(f"Anthro Prediction for subject {subject} measurement{i}")
+
+                    # Save each subject's graph with a unique filename
+                    if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}'):
+                        os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}')
+                    prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}/subject_{subject}_pos{i}_pred.png')
+
+                    # Close the current figure to start a new one for the next subject
                     plt.close()
                     ind += 1
 

@@ -33,18 +33,18 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
-        self.deleteFiles(f'../figures/HRTF/split1/test/test')
-        self.deleteFiles(f'../figures/HRTF/split1/test/train')
-        self.deleteFiles(f'../figures/HRTF/split1/test/validation')
+        # self.deleteFiles(f'../figures/HRTF/split1/test/test')
+        # self.deleteFiles(f'../figures/HRTF/split1/test/train')
+        # self.deleteFiles(f'../figures/HRTF/split1/test/validation')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
 
     # This method will make a prediction for all valid subjects
     def predictAnthro(self, modelPath):
-        self.deleteFiles("../figures/HRTF/split1/predictions/train")
-        self.deleteFiles("../figures/HRTF/split1/predictions/validation")
-        self.deleteFiles("../figures/HRTF/split1/predictions/test")
+        # self.deleteFiles("../figures/HRTF/split1/predictions/train")
+        # self.deleteFiles("../figures/HRTF/split1/predictions/validation")
+        # self.deleteFiles("../figures/HRTF/split1/predictions/test")
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
@@ -102,10 +102,14 @@ class Main:
                 group = "N/A"
             if i % 2 == 0:
                 plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
+                if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}'):
+                    os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}')
+                prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
             else:
                 plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear") 
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
+                if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}'):
+                    os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}')
+                prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
             plt.close()
     
 
@@ -127,5 +131,5 @@ class Main:
 
 main = Main("split1", "HRTF")
 # main.train()
-main.test('saved_model.pth')
-main.predictAnthro('saved_model.pth')
+# main.test('saved_model_tanh.pth')
+main.predictAnthro('saved_model_tanh.pth')
