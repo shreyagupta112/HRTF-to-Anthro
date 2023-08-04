@@ -1,0 +1,1 @@
+tensor(2.0744)tensor(0.5786)tensor(1.8320)tensor(1.5946)tensor(6.8417)tensor(3.1434)tensor(0.5158)tensor(1.0468)tensor(0.5295)tensor(0.5349)tensor(2.0744)tensor(0.5786)tensor(1.8320)tensor(1.5946)tensor(6.8417)tensor(3.1434)tensor(0.5158)tensor(1.0468)tensor(0.5295)tensor(0.5349)tensor(2.0744)tensor(2.0744)tensor(0.5786)
