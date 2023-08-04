@@ -169,7 +169,6 @@ class ModelTrainer:
 
             # plot predicted vs actual for each anthropometric data point
             for i in range(len(anthro_eval[0])):
-                prediction = plt.figure()
                 anthro_eval_at_i = []
                 anthro_test_at_i = []
                 for j in range(len(anthro_eval)):
@@ -179,12 +178,13 @@ class ModelTrainer:
                 for subject in test:
                     start = 2500*ind
                     end = 2500*ind + 2500
+                    prediction = plt.figure()
                     plt.plot(range(len(anthro_eval_at_i[start:end])), anthro_eval_at_i[start:end], label = "prediction")
                     plt.plot(range(len(anthro_test_at_i[start:end])), anthro_test_at_i[start:end], label = "actual")
                     plt.legend(loc="upper right")
                     plt.ylabel("Measurement")
                     plt.xlabel("HRIR")
-                    plt.title(f"Anthro Prediction for subject {subject}'s measurement {i}")
+                    plt.title(f"Anthro Prediction for test subject {subject}'s measurement {i}")
                     prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/Subject{subject}_Pos{i}pred.png')
                     plt.close()
                     ind += 1

@@ -69,9 +69,21 @@ class Main:
         
         # plot predicted vs actual for each subject
         for i in range(len(anthro_prediction)):
-            prediction = plt.figure()
+            prediction = plt.figure(figsize=(10, 6))
             plt.plot(range(len(anthro_prediction[i])), anthro_prediction[i], label = "prediction")
             plt.plot(range(len(actual_anthro_pred[i])), actual_anthro_pred[i], label = "actual")
+
+            # Create a table for all prediction and actual anthro values
+            anthro_prediction_truncated = [round(y, 3) for y in anthro_prediction[i].tolist()]
+            anthro_actual_truncated = [round(y, 3) for y in actual_anthro_pred[i].tolist()]
+            values_table = [[anthro, prediction, actual] for anthro, prediction, actual in zip(range(len(anthro_prediction_truncated)), anthro_prediction_truncated, anthro_actual_truncated)]
+            column_labels = ['Anthro Point','Prediction', 'Actual']
+            table = plt.table(cellText=values_table, colLabels=column_labels, loc='center right')
+
+            # Adjust table properties
+            table.auto_set_font_size(True)
+            table.scale(0.3, 1)
+
             plt.legend(loc="upper right")
             plt.ylabel("Measurement")
             plt.xlabel("Anthro Point")
@@ -87,11 +99,11 @@ class Main:
             else:
                 group = "N/A"
             if i % 2 == 0:
-                plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear")
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
-            else:
-                plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear") 
+                plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
                 prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
+            else:
+                plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear") 
+                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
             plt.close()
     
 
@@ -113,5 +125,5 @@ class Main:
 
 main = Main("split1", "HRTF")
 # main.train()
-main.test('saved_model.pth')
+# main.test('saved_model.pth')
 main.predictAnthro('saved_model.pth')
