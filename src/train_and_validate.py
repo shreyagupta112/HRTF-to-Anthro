@@ -162,10 +162,16 @@ class ModelTrainer:
         model.load_state_dict(torch.load(modelPath))
 
         criterion = nn.MSELoss()
+        
+        lossTest = self.createTestPlot(model, criterion, "test", test, X_test, anthro_test)
+
+        return lossTest
+    
+    def createTestPlot(self, model, lossFn, split, splitList, hrtf, anthro):
         with torch.no_grad():
             # calculate MSE for whole predicition vector
-            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
-            lossAnthro = criterion(anthro_eval, anthro_test) 
+            anthro_eval = model.forward(hrtf) # X-test are features from test se, y_eval s predictions
+            lossAnthro = lossFn(anthro_eval, anthro) 
 
             # plot predicted vs actual for each anthropometric data point
             for i in range(len(anthro_eval[0])):
@@ -173,9 +179,9 @@ class ModelTrainer:
                 anthro_test_at_i = []
                 for j in range(len(anthro_eval)):
                     anthro_eval_at_i.append(anthro_eval[j][i])
-                    anthro_test_at_i.append(anthro_test[j][i])
+                    anthro_test_at_i.append(anthro[j][i])
                 ind = 0
-                for subject in test:
+                for subject in splitList:
                     start = 2500*ind
                     end = 2500*ind + 2500
                     prediction = plt.figure()
@@ -184,11 +190,13 @@ class ModelTrainer:
                     plt.legend(loc="upper right")
                     plt.ylabel("Measurement")
                     plt.xlabel("HRIR")
-                    plt.title(f"Anthro Prediction for test subject {subject}'s measurement {i}")
-                    prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/Subject{subject}_Pos{i}pred.png')
+                    plt.title(f"Anthro Prediction for {split} subject {subject}'s measurement {i}")
+                    prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/{split}/Subject{subject}_Pos{i}pred.png')
                     plt.close()
                     ind += 1
+
         return lossAnthro
+     
     def plotHRIR(subject, position):
         hrir = InputProcessing().extractSingleHRIR(subject, "HRIR")
         hrir_plot = plt.figure()
