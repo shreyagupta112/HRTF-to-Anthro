@@ -175,19 +175,24 @@ class ModelTrainer:
                 for j in range(len(anthro_eval)):
                     anthro_eval_at_i.append(anthro_eval[j][i])
                     anthro_test_at_i.append(anthro_test[j][i])
-                ind = 0
-                for subject in test:
-                    start = 2500*ind
-                    end = 2500*ind + 2500
-                    plt.plot(range(len(anthro_eval_at_i[start:end])), anthro_eval_at_i[start:end], label = "prediction")
-                    plt.plot(range(len(anthro_test_at_i[start:end])), anthro_test_at_i[start:end], label = "actual")
+                print(len(test))
+                for ind in range(len(test)):
+                    anthro_eval_at_subject_i = anthro_eval_at_i[ind*2500:(ind+1)*2500]
+                    anthro_test_at_subject_i = anthro_test_at_i[ind*2500:(ind+1)*2500]
+                    sub = test[ind]
+
+                    plt.plot(range(len(anthro_eval_at_subject_i)), anthro_eval_at_subject_i, label="prediction")
+                    plt.plot(range(len(anthro_test_at_subject_i)), anthro_test_at_subject_i, label="actual")
                     plt.legend(loc="upper right")
                     plt.ylabel("Measurement")
                     plt.xlabel("HRIR")
-                    plt.title(f"Anthro Prediction for subject {subject}'s measurement {i}")
-                    prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/Subject{subject}_Pos{i}pred.png')
+                    plt.title(f"Anthro Prediction for measurement{i}")
+
+                    # Save each subject's graph with a unique filename
+                    plt.savefig(f'../figures/{self.dataType}/{self.splitType}/test/subject{sub}_{i}_pred.png')
+
+                    # Close the current figure to start a new one for the next subject
                     plt.close()
-                    ind += 1
         return lossAnthro
     def plotHRIR(subject, position):
         hrir = InputProcessing().extractSingleHRIR(subject, "HRIR")
