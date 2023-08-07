@@ -33,6 +33,7 @@ class Model(nn.Module):
         self.fc7 = nn.Linear(h6, h7)
         self.fc8 = nn.Linear(h7, h8)
         self.fc9 = nn.Linear(h8, h9)
+        self.TanH = nn.Tanh()
         self.fc_output = nn.Linear(h9, ear_anthro)
     
     # Function to propagate forward
@@ -40,17 +41,27 @@ class Model(nn.Module):
 
         if self.actfunc == "tanh":
             # Make activation functions tanh
-            layer1 = F.tanh(self.fc1(hrir_l))
-            layer2 = F.tanh(self.fc2(layer1))
-            layer3 = F.tanh(self.fc3(layer2))
-            layer4 = F.tanh(self.fc4(layer3))
-            layer5 = F.tanh(self.fc5(layer4))
-            layer6 = F.tanh(self.fc6(layer5))
-            layer7 = F.tanh(self.fc7(layer6))
-            layer8 = F.tanh(self.fc8(layer7))
-            layer9 = F.tanh(self.fc9(layer8))
+            layer1 = self.fc1(hrir_l)
+            layer1 = self.TanH(layer1)
+            layer2 = self.fc2(layer1)
+            layer2 = self.TanH(layer2)
+            layer3 = self.fc3(layer2)
+            layer3 = self.TanH(layer3)
+            layer4 = self.fc4(layer3)
+            layer4 = self.TanH(layer4)
+            layer5 = self.fc5(layer4)
+            layer5 = self.TanH(layer5)
+            layer6 = self.fc6(layer5)
+            layer6 = self.TanH(layer6)
+            layer7 = self.fc7(layer6)
+            layer7 = self.TanH(layer7)
+            layer8 = self.fc8(layer7)
+            layer8 = self.TanH(layer8)
+            layer9 = self.fc9(layer8)
+            layer9 = self.TanH(layer9)
 
             Ear_Anthro = self.fc_output(layer9)
+            Ear_Anthro = self.TanH(Ear_Anthro)
 
             return Ear_Anthro
 

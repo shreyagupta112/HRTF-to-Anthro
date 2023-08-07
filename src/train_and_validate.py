@@ -182,6 +182,27 @@ class ModelTrainer:
 
         trainTest = self.createTestPlot(model, criterion, "train", train, X_train, anthro_train)
 
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_test_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_test_at_i.append(anthro_test[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_test_at_i)), anthro_test_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_pred.png')
+                plt.close()
+
         return lossTest, validationTest, trainTest
     
     def createTestPlot(self, model, lossFn, split, splitList, hrtf, anthro):
