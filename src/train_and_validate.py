@@ -202,6 +202,48 @@ class ModelTrainer:
                 plt.title(f"Anthro Prediction for measurement{i}")
                 prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_pred.png')
                 plt.close()
+        
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_train) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_train_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_train_at_i.append(anthro_train[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_train_at_i)), anthro_train_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_train_pred.png')
+                plt.close()
+        
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_validation) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_validation_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_validation_at_i.append(anthro_validation[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_validation_at_i)), anthro_validation_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_valid_pred.png')
+                plt.close()
 
         return lossTest, validationTest, trainTest
     
