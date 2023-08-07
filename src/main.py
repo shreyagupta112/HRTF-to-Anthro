@@ -131,6 +131,6 @@ class Main:
 
 
 main = Main("split1", "HRTF", "tanh")
-# main.train()
+main.train()
 main.test('saved_model_tanh.pth')
 main.predictAnthro('saved_model_tanh.pth')
