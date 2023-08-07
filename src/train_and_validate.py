@@ -46,7 +46,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 200
+        epochs = 80
         train_losses = []
         val_losses = []
         test_losses = []
@@ -209,9 +209,9 @@ class ModelTrainer:
                     plt.title(f"Anthro Prediction for subject {subject} measurement{i}")
 
                     # Save each subject's graph with a unique filename
-                    if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}'):
-                        os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}')
-                    prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/test_{split}/subject_{subject}_pos{i}_pred.png')
+                    if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}'):
+                        os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}')
+                    prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}/subject_{subject}_pos{i}_pred.png')
 
                     # Close the current figure to start a new one for the next subject
                     plt.close()
