@@ -10,11 +10,12 @@ This class contains methods relevant towards training
 a model
 '''
 class ModelTrainer:
-    def __init__(self, splitType, dataType):
+    def __init__(self, splitType, dataType, activationFunction):
         self.DP = DataProcessing()
         self.validSubjects = self.DP.validSubjects
         self.splitType = splitType
         self.dataType = dataType
+        self.activFunc = activationFunction
         
     # Method to train the model
     def trainModel(self, model):
@@ -104,7 +105,7 @@ class ModelTrainer:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
                 min_valid_loss = lossValAnthro
                 # save current state of model
-                torch.save(model.state_dict(), 'saved_model_tanh.pth')
+                torch.save(model.state_dict(), 'saved_model.pth')
 
         # Plot total error per epoch
         trainLoss = plt.figure()
@@ -115,9 +116,9 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}'):
-            os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}')
-        trainLoss.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/error.png')
+        if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}'):
+            os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}')
+        trainLoss.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -137,9 +138,9 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro'):
-                os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro')
-            figlabel = f"../figures/tanh/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
+            if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro'):
+                os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro')
+            figlabel = f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -209,9 +210,9 @@ class ModelTrainer:
                     plt.title(f"Anthro Prediction for subject {subject} measurement{i}")
 
                     # Save each subject's graph with a unique filename
-                    if not os.path.exists(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}'):
-                        os.makedirs(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}')
-                    prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/test/{split}/subject_{subject}_pos{i}_pred.png')
+                    if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}'):
+                        os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}')
+                    prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}/subject_{subject}_pos{i}_pred.png')
 
                     # Close the current figure to start a new one for the next subject
                     plt.close()
