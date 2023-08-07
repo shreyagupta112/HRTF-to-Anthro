@@ -105,7 +105,7 @@ class ModelTrainer:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
                 min_valid_loss = lossValAnthro
                 # save current state of model
-                torch.save(model.state_dict(), 'saved_model.pth')
+                torch.save(model.state_dict(), 'saved_model_tanh.pth')
 
         # Plot total error per epoch
         trainLoss = plt.figure()
@@ -166,11 +166,11 @@ class ModelTrainer:
         X_train = torch.tensor(X_train).to(torch.float32)
         anthro_train = torch.tensor(anthro_train).to(torch.float32)
         
-        model = Model()
+        model = Model(self.activFunc)
         if self.dataType == "trunc64":
-            model = Model(67)
+            model = Model(self.activFunc, 67)
         if self.dataType == "raw":
-            model = Model(203)
+            model = Model(self.activFunc, 203)
 
         model.load_state_dict(torch.load(modelPath))
 

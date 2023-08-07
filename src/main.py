@@ -51,11 +51,11 @@ class Main:
         anthro_prediction = []
         actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False)
         
-        model = Model()
+        model = Model(self.activFunc)
         if self.dataType == "trunc64":
-            model = Model(67)
+            model = Model(self.activFunc, 67)
         if self.dataType == "raw":
-            model = Model(203)
+            model = Model(self.activFunc, 203)
 
         model.load_state_dict(torch.load(modelPath))
 
@@ -130,7 +130,7 @@ class Main:
 
 
 
-main = Main("split1", "HRTF", "relu")
-main.train()
-main.test('saved_model.pth')
-main.predictAnthro('saved_model.pth')
+main = Main("split1", "HRTF", "tanh")
+# main.train()
+main.test('saved_model_tanh.pth')
+main.predictAnthro('saved_model_tanh.pth')
