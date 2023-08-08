@@ -105,7 +105,7 @@ class ModelTrainer:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
                 min_valid_loss = lossValAnthro
                 # save current state of model
-                torch.save(model.state_dict(), 'saved_model_tanh.pth')
+                torch.save(model.state_dict(), 'saved_model.pth')
 
         # Plot total error per epoch
         trainLoss = plt.figure()
