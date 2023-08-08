@@ -11,7 +11,10 @@ class InputProcessing:
     def __init__(self):
         pass
 
+    # Todo: Normalize HRTF
+    # Zero mean and unit variance
     # return an array representing the hrir from a single subject
+    # Plot normalized HRTF and show channel before procedding
     def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')

@@ -1,6 +1,7 @@
 from model import *
 from train_and_validate import *
 from inputProcessing import *
+from torchsummary import summary
 import torch
 import numpy as np
 import math
@@ -8,21 +9,23 @@ import os
 
 class Main:
 
-    def __init__(self, splitType, dataType):
+    def __init__(self, splitType, dataType, activationFunction):
         self.splitType = splitType
         self.dataType = dataType
+        self.activFunc = activationFunction
         if dataType == "HRTF":
-            self.model = Model(36)
+            self.model = Model(activationFunction, 36)
         elif dataType == "raw":
-            self.model = Model(203)
+            self.model = Model(activationFunction, 203)
         else:
-            self.model = Model(67)
+            self.model = Model(activationFunction, 67)
+        summary(self.model, input_size = (1, 1, 36))
         self.inputProcessing = InputProcessing()
         self.dataProcessing = DataProcessing()
         self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
                          148, 152, 153, 154, 155, 156, 162, 163, 165]
-        self.trainer = ModelTrainer(self.splitType, self.dataType)
+        self.trainer = ModelTrainer(self.splitType, self.dataType, self.activFunc)
 
     # This method will train the model
     def train(self):
@@ -33,28 +36,28 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
-        self.deleteFiles(f'../figures/HRTF/split1/test/test')
-        self.deleteFiles(f'../figures/HRTF/split1/test/train')
-        self.deleteFiles(f'../figures/HRTF/split1/test/validation')
+        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/test')
+        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/train')
+        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/validation')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
 
     # This method will make a prediction for all valid subjects
     def predictAnthro(self, modelPath):
-        self.deleteFiles("../figures/HRTF/split1/predictions/train")
-        self.deleteFiles("../figures/HRTF/split1/predictions/validation")
-        self.deleteFiles("../figures/HRTF/split1/predictions/test")
+        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/train")
+        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/validation")
+        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/test")
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
         actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False)
         
-        model = Model()
+        model = Model(self.activFunc)
         if self.dataType == "trunc64":
-            model = Model(67)
+            model = Model(self.activFunc, 67)
         if self.dataType == "raw":
-            model = Model(203)
+            model = Model(self.activFunc, 203)
 
         model.load_state_dict(torch.load(modelPath))
 
@@ -102,10 +105,14 @@ class Main:
                 group = "N/A"
             if i % 2 == 0:
                 plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
+                if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
+                    os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
+                prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
             else:
                 plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear") 
-                prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
+                if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
+                    os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
             plt.close()
     
 
@@ -125,7 +132,7 @@ class Main:
 
 
 
-main = Main("split1", "HRTF")
-# main.train()
+main = Main("split1", "HRTF", "relu")
+main.train()
 main.test('saved_model.pth')
 main.predictAnthro('saved_model.pth')

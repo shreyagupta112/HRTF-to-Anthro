@@ -10,11 +10,12 @@ This class contains methods relevant towards training
 a model
 '''
 class ModelTrainer:
-    def __init__(self, splitType, dataType):
+    def __init__(self, splitType, dataType, activationFunction):
         self.DP = DataProcessing()
         self.validSubjects = self.DP.validSubjects
         self.splitType = splitType
         self.dataType = dataType
+        self.activFunc = activationFunction
         
     # Method to train the model
     def trainModel(self, model):
@@ -46,7 +47,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 200
+        epochs = 80
         train_losses = []
         val_losses = []
         test_losses = []
@@ -104,7 +105,10 @@ class ModelTrainer:
                 print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
                 min_valid_loss = lossValAnthro
                 # save current state of model
-                torch.save(model.state_dict(), 'saved_model.pth')
+                if self.activFunc == "tanh":
+                    torch.save(model.state_dict(), 'saved_model_tanh.pth')
+                else:
+                    torch.save(model.state_dict(), 'saved_model.pth') 
 
         # Plot total error per epoch
         trainLoss = plt.figure()
@@ -115,7 +119,9 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        trainLoss.savefig(f'../figures/{self.dataType}/{self.splitType}/error.png')
+        if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}'):
+            os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}')
+        trainLoss.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
@@ -135,7 +141,9 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            figlabel = f"../figures/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
+            if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro'):
+                os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro')
+            figlabel = f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -161,11 +169,11 @@ class ModelTrainer:
         X_train = torch.tensor(X_train).to(torch.float32)
         anthro_train = torch.tensor(anthro_train).to(torch.float32)
         
-        model = Model()
+        model = Model(self.activFunc)
         if self.dataType == "trunc64":
-            model = Model(67)
+            model = Model(self.activFunc, 67)
         if self.dataType == "raw":
-            model = Model(203)
+            model = Model(self.activFunc, 203)
 
         model.load_state_dict(torch.load(modelPath))
 
@@ -176,6 +184,69 @@ class ModelTrainer:
         validationTest = self.createTestPlot(model, criterion, "validation", validation, X_validation, anthro_validation) 
 
         trainTest = self.createTestPlot(model, criterion, "train", train, X_train, anthro_train)
+
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_test) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_test_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_test_at_i.append(anthro_test[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_test_at_i)), anthro_test_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_pred.png')
+                plt.close()
+        
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_train) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_train_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_train_at_i.append(anthro_train[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_train_at_i)), anthro_train_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_train_pred.png')
+                plt.close()
+        
+        with torch.no_grad():
+            # calculate MSE for whole predicition vector
+            anthro_eval = model.forward(X_validation) # X-test are features from test se, y_eval s predictions
+
+            # plot predicted vs actual for each anthropometric data point
+            for i in range(len(anthro_eval[0])):
+                prediction = plt.figure()
+                anthro_eval_at_i = []
+                anthro_validation_at_i = []
+                for j in range(len(anthro_eval)):
+                    anthro_eval_at_i.append(anthro_eval[j][i])
+                    anthro_validation_at_i.append(anthro_validation[j][i])
+                plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
+                plt.plot(range(len(anthro_validation_at_i)), anthro_validation_at_i, label = "actual")
+                plt.legend(loc="upper right")
+                plt.ylabel("Measurement")
+                plt.xlabel("HRIR")
+                plt.title(f"Anthro Prediction for measurement{i}")
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_valid_pred.png')
+                plt.close()
 
         return lossTest, validationTest, trainTest
     
@@ -202,8 +273,14 @@ class ModelTrainer:
                     plt.legend(loc="upper right")
                     plt.ylabel("Measurement")
                     plt.xlabel("HRIR")
-                    plt.title(f"Anthro Prediction for {split} subject {subject}'s measurement {i}")
-                    prediction.savefig(f'../figures/{self.dataType}/{self.splitType}/test/{split}/Subject{subject}_Pos{i}pred.png')
+                    plt.title(f"Anthro Prediction for subject {subject} measurement{i}")
+
+                    # Save each subject's graph with a unique filename
+                    if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}'):
+                        os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}')
+                    prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{split}/subject_{subject}_pos{i}_pred.png')
+
+                    # Close the current figure to start a new one for the next subject
                     plt.close()
                     ind += 1
 
