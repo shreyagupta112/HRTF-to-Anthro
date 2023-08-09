@@ -189,26 +189,19 @@ class InputProcessing:
         return outputs_mag
 
     # normalize the data
-    def normalize(self, data, type):
-        mean = 1
-        std = 1
-        if type == "pos":
-            mean = self.pos_mean
-            std = self.pos_std
-        elif type == "leftHRTF":
-            mean = self.left_hrtf_mean
-            std = self.left_hrtf_std
-        elif type == "rightHRTF":
-            mean = self.right_hrtf_mean
-            std = self.right_hrtf_std
-        elif type == "leftAnthro":
-            mean = self.left_anthro_mean
-            std = self.left_anthro_std
-        elif type == "rightAnthro":
-            mean = self.right_anthro_mean
-            std = self.right_anthro_std
+
+    def normalize(self, data, data_type):
+        type_mappings = {
+            "pos": (self.pos_mean, self.pos_std),
+            "leftHRTF": (self.left_hrtf_mean, self.left_hrtf_std),
+            "rightHRTF": (self.right_hrtf_mean, self.right_hrtf_std),
+            "leftAnthro": (self.left_anthro_mean, self.left_anthro_std),
+            "rightAnthro": (self.right_anthro_mean, self.right_anthro_std)
+        }
+        mean, std = type_mappings.get(data_type, (1, 1))
         normalized_data = (data - mean) / std
         return normalized_data
+
 
 # IP = InputProcessing()
 # normalized_data = IP.extractSingleAnthro(3, False, True)
