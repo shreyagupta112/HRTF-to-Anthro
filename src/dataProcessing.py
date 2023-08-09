@@ -3,6 +3,7 @@ import torch
 from sklearn.model_selection import train_test_split
 from inputProcessing import *
 import re
+import sys
 
 # Class to deal with data processing
 # Should only be constructed when training the model
@@ -10,9 +11,6 @@ class DataProcessing:
 
     def __init__(self):
         self.IP = InputProcessing()
-        self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-                         148, 152, 153, 154, 155, 156, 162, 163, 165]
     
     # create Subject splits and write it to the txt file
     def createSubjectSplit(self):
@@ -103,3 +101,6 @@ class DataProcessing:
         test = lists[3]
         return train, validation, test
 
+
+# DP = DataProcessing("HRTF")
+# splits = DP.dataSplitTypeOne("HRTF")
