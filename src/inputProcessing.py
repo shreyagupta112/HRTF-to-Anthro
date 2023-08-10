@@ -12,8 +12,10 @@ class InputProcessing:
         self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
                          148, 152, 153, 154, 155, 156, 162, 163, 165]
+        self.calcMeanSTD()
         
         # Extract initial data for the first subject
+    def calcMeanSTD(self):
         HRTF = self.extractSingleHRIR(self.validSubjects[0], False, "HRTF", False)
         leftHRTF = HRTF[0:1250]
         rightHRTF = HRTF[1250:]
@@ -53,7 +55,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str, normalize: bool):
+    def extractSingleHRIR(self, subject_num, plot, dataType, normalize=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -100,7 +102,7 @@ class InputProcessing:
 
     
     # return an array representing the positions of a single subject
-    def extractSinglePos(self, subject_num: int, normalize: bool):
+    def extractSinglePos(self, subject_num, normalize=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -115,15 +117,15 @@ class InputProcessing:
     
     # HERE IS WHERE WE INDICATE WHETHER WE WANT TO NORMALIZE OR NOT
     # return an array with hrir and position of a single subject
-    def extractSingleHrirAndPos(self, subject_num: int, dataType):
-        hrir = self.extractSingleHRIR(subject_num, False, dataType, True)
+    def extractSingleHrirAndPos(self, subject_num: int, dataType, normalize=False):
+        hrir = self.extractSingleHRIR(subject_num, False, dataType, normalize)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
     
     # Make it zero mean unit variance normalization
     # return an array representing the anthropometric data from a single subject
-    def extractSingleAnthro(self, subject_num, stack: bool, normalize: bool):
+    def extractSingleAnthro(self, subject_num, stack: bool, normalize=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
