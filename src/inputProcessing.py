@@ -13,6 +13,7 @@ class InputProcessing:
                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
                          148, 152, 153, 154, 155, 156, 162, 163, 165]
         
+        # Extract initial data for the first subject
         HRTF = self.extractSingleHRIR(self.validSubjects[0], False, "HRTF", False)
         leftHRTF = HRTF[0:1250]
         rightHRTF = HRTF[1250:]
@@ -20,18 +21,23 @@ class InputProcessing:
         ANTHRO = self.extractSingleAnthro(self.validSubjects[0], False, False)
         leftAnthro = ANTHRO[0]
         rightAnthro = ANTHRO[1]
+
+        # Loop through remaining subjects and accumulate data
         for subject in self.validSubjects[1:]:
             currHRTF = self.extractSingleHRIR(subject, False, "HRTF", False)
             currLeftHRTF = currHRTF[0:1250]
             currRightHRTF = currHRTF[1250:]
             leftHRTF = np.vstack((leftHRTF, currLeftHRTF))
             rightHRTF = np.vstack((rightHRTF, currRightHRTF))
+            
             currPOS = self.extractSinglePos(subject, False)
             POS = np.vstack((POS, currPOS))
+            
             currAnthro = self.extractSingleAnthro(subject, False, False)
             leftAnthro = np.vstack((leftAnthro, currAnthro[0]))
             rightAnthro = np.vstack((rightAnthro, currAnthro[1]))
-        
+
+        # Calculate means and standard deviations
         self.left_hrtf_mean = np.mean(leftHRTF, axis=0)
         self.left_hrtf_std = np.std(leftHRTF, axis=0)
         self.right_hrtf_mean = np.mean(rightHRTF, axis=0)
@@ -42,6 +48,7 @@ class InputProcessing:
         self.left_anthro_std = np.std(leftAnthro, axis=0)
         self.right_anthro_mean = np.mean(rightAnthro, axis=0)
         self.right_anthro_std = np.std(rightAnthro, axis=0)
+
     # Todo: Normalize HRTF
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject

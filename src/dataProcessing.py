@@ -11,7 +11,7 @@ class DataProcessing:
 
     def __init__(self):
         self.IP = InputProcessing()
-    
+        self.validSubjects = self.IP.validSubjects
     # create Subject splits and write it to the txt file
     def createSubjectSplit(self):
         total_subjects = len(self.validSubjects)
