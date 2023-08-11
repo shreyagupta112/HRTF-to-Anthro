@@ -55,7 +55,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num, plot, dataType, normalize=False):
+    def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -66,34 +66,8 @@ class InputProcessing:
             row_left = np.array(dset_left)
             left_hrtf = self.FourierTransform(row_left)
             right_hrtf = self.FourierTransform(row_right)
-            if normalize:
-                left_hrtf = self.normalize(left_hrtf, "leftHRTF")
-                right_hrtf = self.normalize(right_hrtf, "rightHRTF")
         single_hrir = np.vstack((row_left, row_right))
         single_hrtf = np.vstack((left_hrtf, right_hrtf))
-
-
-        if plot:
-            hrir_plot = plt.figure()
-            plt.plot(range(len(left_hrtf[0])), left_hrtf[0], label = "left hrtf")
-            plt.plot(range(len(right_hrtf[0])), right_hrtf[0], label = "right hrtf")
-            plt.legend(loc="upper right")
-            plt.ylabel("HRIR")
-            plt.xlabel("Time")
-            plt.title(f"First HRTF Plot for subject {subject_num}")
-            hrir_plot.savefig("HRTF.png")
-            plt.close()
-
-            # hrtf_plot = plt.figure()
-            # plt.plot(range(len(normalized_lhrtf[0])), normalized_lhrtf[0], label = "left normalized hrtf")
-            # plt.plot(range(len(normalized_rhrtf[0])), normalized_rhrtf[0], label = "right normalized hrtf")
-            # plt.legend(loc="upper right")
-            # plt.ylabel("HRTF")
-            # plt.xlabel("Frequency")
-            # plt.title(f"First HRTF Plot for subject {subject_num}")
-            # hrtf_plot.savefig("NormHRTF.png")
-            # plt.close()
-        
         if dataType == "HRTF":
             return single_hrtf
         else:
@@ -102,30 +76,27 @@ class InputProcessing:
 
     
     # return an array representing the positions of a single subject
-    def extractSinglePos(self, subject_num, normalize=False):
+    def extractSinglePos(self, subject_num: int):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
             dset = f[subject]['srcpos']['trunc_64']
             row = np.array(dset)
-            if normalize:
-                row = self.normalize(row, "pos")
         doubled_row = np.vstack((row, row))
         
         return doubled_row
     
-    # HERE IS WHERE WE INDICATE WHETHER WE WANT TO NORMALIZE OR NOT
     # return an array with hrir and position of a single subject
-    def extractSingleHrirAndPos(self, subject_num: int, dataType, normalize=False):
-        hrir = self.extractSingleHRIR(subject_num, False, dataType, normalize)
-        pos = self.extractSinglePos(subject_num, True)
+    def extractSingleHrirAndPos(self, subject_num: int, dataType):
+        hrir = self.extractSingleHRIR(subject_num, False, dataType)
+        pos = self.extractSinglePos(subject_num)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
     
     # Make it zero mean unit variance normalization
     # return an array representing the anthropometric data from a single subject
-    def extractSingleAnthro(self, subject_num, stack: bool, normalize=False):
+    def extractSingleAnthro(self, subject_num, stack: bool):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -141,9 +112,6 @@ class InputProcessing:
             left_row = np.hstack((left_ear, left_pinna))
             right_row = np.hstack((right_ear, right_pinna))
 
-            if normalize:
-                left_row = self.normalize(left_row, "leftAnthro")
-                right_row = self.normalize(right_row, "rightAnthro")
             if stack:
                 leftAnthro = np.tile(left_row, (1250, 1))
                 rightAnthro = np.tile(right_row, (1250, 1)) 
@@ -162,28 +130,67 @@ class InputProcessing:
             currArray = self.extractSingleHrirAndPos(subject, dataType)
             hrir_pos = np.vstack((hrir_pos, currArray))
         return hrir_pos
-
-    # HERE IS WHERE WE INDICATE WHETHER WE WANT TO NORMALIZE OR NOT 
+    
     # extract Anthro data for all subjects in subjects
     def extractAnthro(self, subjects, stack: bool):
         # get first anthro vector
-        anthro = self.extractSingleAnthro(subjects[0], stack, True)
+        anthro = self.extractSingleAnthro(subjects[0], stack)
         for subject in subjects[1:]:
-            currArray = self.extractSingleAnthro(subject, stack, True)
+            currArray = self.extractSingleAnthro(subject, stack)
             anthro = np.vstack((anthro, currArray))
         return anthro
 
     # extract both hrir_pos and anthro for all subjects in subjects
-    def extractData(self, subjects, dataType):
-        # get first hrir, pos vector
-        hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
-        # get first anthro vector
+    def extractData(self, subjects, dataType, normalize=False):
         anthro = self.extractSingleAnthro(subjects[0], True)
-        for subject in subjects[1:]:
-            currHrirPosArray = self.extractSingleHrirAndPos(subject, dataType)
-            currAnthroArray = self.extractSingleAnthro(subject, True)
-            hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
-            anthro = np.vstack((anthro, currAnthroArray))
+        hrir = self.extractSingleHRIR(subjects[0], False, dataType)
+
+        if normalize:
+            left_anthro, right_anthro = anthro[:1250], anthro[1250:]
+            left_hrir, right_hrir = hrir[:1250], hrir[1250:]
+            pos = self.extractSinglePos(subjects[0])
+
+            left_anthro = normalize(left_anthro, "leftAnthro")
+            right_anthro = normalize(right_anthro, "rightAnthro")
+            left_hrir = normalize(left_hrir, "leftHRTF")
+            right_hrir = normalize(right_hrir, "rightHRTF")
+            pos = normalize(pos, "pos")
+
+            comb_hrir = np.vstack((left_hrir, right_hrir))
+            hrir_pos = np.hstack((comb_hrir, pos))
+            anthro = np.vstack((left_anthro, right_anthro))
+
+
+            for subject in subjects[1:]:
+                currHrirArray = self.extractSingleHRIR(subject, False, dataType)
+                currPosArray = self.extractSinglePos(subjects[0])
+                currAnthroArray = self.extractSingleAnthro(subject, True)
+                curr_left_anthro, curr_right_anthro = currAnthroArray[:1250], currAnthroArray[1250:]
+                curr_left_hrir, curr_right_hrir = currHrirArray[:1250], currHrirArray[1250:]
+
+                curr_left_anthro = normalize(curr_left_anthro, "leftAnthro")
+                curr_right_anthro = normalize(curr_right_anthro, "rightAnthro")
+                curr_left_hrir = normalize(curr_left_hrir, "leftHRTF")
+                curr_right_hrir = normalize(curr_right_hrir, "rightHRTF")
+                currPosArray = normalize(currPosArray, "pos")
+
+                new_comb_hrir = np.vstack((curr_left_hrir, curr_right_hrir))
+                new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
+                new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
+
+                comb_hrir = np.vstack((new_comb_hrir, comb_hrir))
+                hrir_pos = np.hstack((new_hrir_pos, hrir_pos))
+                anthro = np.vstack((new_anthro, anthro))
+
+        else:
+            hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
+            # get first anthro vector
+            for subject in subjects[1:]:
+                currHrirPosArray = self.extractSingleHrirAndPos(subject, dataType)
+                currAnthroArray = self.extractSingleAnthro(subject, True)
+                hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
+                anthro = np.vstack((anthro, currAnthroArray))
+
         return hrir_pos, anthro
 
     # perform FFT on data
@@ -208,6 +215,7 @@ class InputProcessing:
             "rightAnthro": (self.right_anthro_mean, self.right_anthro_std)
         }
         mean, std = type_mappings.get(data_type, (1, 1))
+        print(f'{data_type}: std - {std}')
         normalized_data = (data - mean) / std
         return normalized_data
 
