@@ -16,26 +16,26 @@ class InputProcessing:
         
         # Extract initial data for the first subject
     def calcMeanSTD(self):
-        HRTF = self.extractSingleHRIR(self.validSubjects[0], False, "HRTF", False)
+        HRTF = self.extractSingleHRIR(self.validSubjects[0], False, "HRTF")
         leftHRTF = HRTF[0:1250]
         rightHRTF = HRTF[1250:]
-        POS = self.extractSinglePos(self.validSubjects[0], False)
-        ANTHRO = self.extractSingleAnthro(self.validSubjects[0], False, False)
+        POS = self.extractSinglePos(self.validSubjects[0])
+        ANTHRO = self.extractSingleAnthro(self.validSubjects[0], False)
         leftAnthro = ANTHRO[0]
         rightAnthro = ANTHRO[1]
 
         # Loop through remaining subjects and accumulate data
         for subject in self.validSubjects[1:]:
-            currHRTF = self.extractSingleHRIR(subject, False, "HRTF", False)
+            currHRTF = self.extractSingleHRIR(subject, False, "HRTF")
             currLeftHRTF = currHRTF[0:1250]
             currRightHRTF = currHRTF[1250:]
             leftHRTF = np.vstack((leftHRTF, currLeftHRTF))
             rightHRTF = np.vstack((rightHRTF, currRightHRTF))
             
-            currPOS = self.extractSinglePos(subject, False)
+            currPOS = self.extractSinglePos(subject)
             POS = np.vstack((POS, currPOS))
             
-            currAnthro = self.extractSingleAnthro(subject, False, False)
+            currAnthro = self.extractSingleAnthro(subject, False)
             leftAnthro = np.vstack((leftAnthro, currAnthro[0]))
             rightAnthro = np.vstack((rightAnthro, currAnthro[1]))
 
