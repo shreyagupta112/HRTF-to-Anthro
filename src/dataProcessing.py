@@ -33,9 +33,9 @@ class DataProcessing:
 
         self.createSubjectSplit()
 
-        X_train, Y_train = self.IP.extractData(self.trainSubjects, dataType)
-        X_valid, Y_valid = self.IP.extractData(self.validationSubjects, dataType)
-        X_test, Y_test = self.IP.extractData(self.testSubjects, dataType)
+        X_train, Y_train = self.IP.extractData(self.trainSubjects, dataType, True)
+        X_valid, Y_valid = self.IP.extractData(self.validationSubjects, dataType, True)
+        X_test, Y_test = self.IP.extractData(self.testSubjects, dataType, True)
 
         X_train = torch.tensor(X_train).to(torch.float32)
         Y_train = torch.tensor(Y_train).to(torch.float32)

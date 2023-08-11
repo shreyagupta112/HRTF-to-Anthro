@@ -141,20 +141,20 @@ class InputProcessing:
         return anthro
 
     # extract both hrir_pos and anthro for all subjects in subjects
-    def extractData(self, subjects, dataType, normalize=False):
+    def extractData(self, subjects, dataType, doNormalize=False):
         anthro = self.extractSingleAnthro(subjects[0], True)
         hrir = self.extractSingleHRIR(subjects[0], False, dataType)
 
-        if normalize:
+        if doNormalize:
             left_anthro, right_anthro = anthro[:1250], anthro[1250:]
             left_hrir, right_hrir = hrir[:1250], hrir[1250:]
             pos = self.extractSinglePos(subjects[0])
 
-            left_anthro = normalize(left_anthro, "leftAnthro")
-            right_anthro = normalize(right_anthro, "rightAnthro")
-            left_hrir = normalize(left_hrir, "leftHRTF")
-            right_hrir = normalize(right_hrir, "rightHRTF")
-            pos = normalize(pos, "pos")
+            left_anthro = self.normalize(left_anthro, "leftAnthro")
+            right_anthro = self.normalize(right_anthro, "rightAnthro")
+            left_hrir = self.normalize(left_hrir, "leftHRTF")
+            right_hrir = self.normalize(right_hrir, "rightHRTF")
+            pos = self.normalize(pos, "pos")
 
             comb_hrir = np.vstack((left_hrir, right_hrir))
             hrir_pos = np.hstack((comb_hrir, pos))
@@ -168,11 +168,11 @@ class InputProcessing:
                 curr_left_anthro, curr_right_anthro = currAnthroArray[:1250], currAnthroArray[1250:]
                 curr_left_hrir, curr_right_hrir = currHrirArray[:1250], currHrirArray[1250:]
 
-                curr_left_anthro = normalize(curr_left_anthro, "leftAnthro")
-                curr_right_anthro = normalize(curr_right_anthro, "rightAnthro")
-                curr_left_hrir = normalize(curr_left_hrir, "leftHRTF")
-                curr_right_hrir = normalize(curr_right_hrir, "rightHRTF")
-                currPosArray = normalize(currPosArray, "pos")
+                curr_left_anthro = self.normalize(curr_left_anthro, "leftAnthro")
+                curr_right_anthro = self.normalize(curr_right_anthro, "rightAnthro")
+                curr_left_hrir = self.normalize(curr_left_hrir, "leftHRTF")
+                curr_right_hrir = self.normalize(curr_right_hrir, "rightHRTF")
+                currPosArray = self.normalize(currPosArray, "pos")
 
                 new_comb_hrir = np.vstack((curr_left_hrir, curr_right_hrir))
                 new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
