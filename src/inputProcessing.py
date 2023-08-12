@@ -160,6 +160,10 @@ class InputProcessing:
             hrir_pos = np.hstack((comb_hrir, pos))
             anthro = np.vstack((left_anthro, right_anthro))
 
+            print("pos", len(pos), len(pos[0]))
+            print("hrir", len(comb_hrir), len(comb_hrir[0]))
+            print("hrir_pos", len(hrir_pos), len(hrir_pos[0]))
+
 
             for subject in subjects[1:]:
                 currHrirArray = self.extractSingleHRIR(subject, False, dataType)
@@ -179,7 +183,7 @@ class InputProcessing:
                 new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
 
                 comb_hrir = np.vstack((new_comb_hrir, comb_hrir))
-                hrir_pos = np.hstack((new_hrir_pos, hrir_pos))
+                hrir_pos = np.vstack((new_hrir_pos, hrir_pos))
                 anthro = np.vstack((new_anthro, anthro))
 
         else:
@@ -190,7 +194,8 @@ class InputProcessing:
                 currAnthroArray = self.extractSingleAnthro(subject, True)
                 hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
                 anthro = np.vstack((anthro, currAnthroArray))
-
+        print("fin_hrir", len(hrir_pos), len(hrir_pos[0]))
+        print("fin_anthro", len(anthro), len(anthro[0]))
         return hrir_pos, anthro
 
     # perform FFT on data
@@ -215,7 +220,6 @@ class InputProcessing:
             "rightAnthro": (self.right_anthro_mean, self.right_anthro_std)
         }
         mean, std = type_mappings.get(data_type, (1, 1))
-        print(f'{data_type}: std - {std}')
         normalized_data = (data - mean) / std
         return normalized_data
 
