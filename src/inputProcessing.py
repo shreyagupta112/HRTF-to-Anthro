@@ -154,7 +154,7 @@ class InputProcessing:
             right_anthro = self.normalize(right_anthro, "rightAnthro")
             left_hrir = self.normalize(left_hrir, "leftHRTF")
             right_hrir = self.normalize(right_hrir, "rightHRTF")
-            pos = self.normalize(pos, "pos")
+            # pos = self.normalize(pos, "pos")
 
             comb_hrir = np.vstack((left_hrir, right_hrir))
             hrir_pos = np.hstack((comb_hrir, pos))
@@ -176,7 +176,7 @@ class InputProcessing:
                 curr_right_anthro = self.normalize(curr_right_anthro, "rightAnthro")
                 curr_left_hrir = self.normalize(curr_left_hrir, "leftHRTF")
                 curr_right_hrir = self.normalize(curr_right_hrir, "rightHRTF")
-                currPosArray = self.normalize(currPosArray, "pos")
+                # currPosArray = self.normalize(currPosArray, "pos")
 
                 new_comb_hrir = np.vstack((curr_left_hrir, curr_right_hrir))
                 new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
