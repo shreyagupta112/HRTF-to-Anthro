@@ -101,14 +101,14 @@ class ModelTrainer:
                 mse_test_data.append(np.array(test_output.detach().numpy()))
 
             # Update validation loss
-            if min_valid_loss > lossValAnthro:
-                print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
-                min_valid_loss = lossValAnthro
-                # save current state of model
-                if self.activFunc == "tanh":
-                    torch.save(model.state_dict(), 'saved_model_tanh.pth')
-                else:
-                    torch.save(model.state_dict(), 'saved_model.pth') 
+            # if min_valid_loss > lossValAnthro:
+            # print(f'Validation Loss Decreased({min_valid_loss:.6f}-->{lossValAnthro:.6f}) \t Saving The Model')
+            min_valid_loss = lossValAnthro
+            # save current state of model
+            if self.activFunc == "tanh":
+                torch.save(model.state_dict(), 'saved_model_tanh.pth')
+            else:
+                torch.save(model.state_dict(), 'saved_model.pth') 
 
         # Plot total error per epoch
         trainLoss = plt.figure()

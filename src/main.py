@@ -51,7 +51,7 @@ class Main:
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
-        actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False)
+        actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False, True)
         
         model = Model(self.activFunc)
         if self.dataType == "trunc64":
@@ -64,7 +64,8 @@ class Main:
         for subject in validSubjects:
             with torch.no_grad():
                 # Make prediction
-                input = torch.tensor(self.inputProcessing.extractHrirPos([subject], self.dataType)).to(torch.float32) 
+                hrir_pos, anthro = self.inputProcessing.extractData([subject], self.dataType)
+                input = torch.tensor(hrir_pos).to(torch.float32) 
                 anthro_pred_left = model.forward(input[0:1250])
                 anthro_pred_right = model.forward(input[1250:])
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
@@ -132,7 +133,7 @@ class Main:
 
 
 
-main = Main("split1", "HRTF", "relu")
+main = Main("split1", "HRTF", "tanh")
 main.train()
-main.test('saved_model.pth')
-main.predictAnthro('saved_model.pth')
+# main.test('saved_model_tanh.pth')
+main.predictAnthro('saved_model_tanh.pth')

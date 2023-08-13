@@ -132,40 +132,38 @@ class InputProcessing:
         return hrir_pos
     
     # extract Anthro data for all subjects in subjects
-    def extractAnthro(self, subjects, stack: bool):
+    def extractAnthro(self, subjects, stack, normalize=False):
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], stack)
-        for subject in subjects[1:]:
-            currArray = self.extractSingleAnthro(subject, stack)
-            anthro = np.vstack((anthro, currArray))
+        if normalize == False:
+            for subject in subjects[1:]:
+                currArray = self.extractSingleAnthro(subject, stack)
+                anthro = np.vstack((anthro, currArray))
+        else:
+            left_anthro, right_anthro = anthro[:1250], anthro[1250:]
+            left_anthro = self.normalize(left_anthro, "leftAnthro")
+            right_anthro = self.normalize(right_anthro, "rightAnthro")
+            anthro = np.vstack((left_anthro, right_anthro))
+            for subject in subjects[1:]:
+                currArray = self.extractSingleAnthro(subject, stack)
+                left_anthro, right_anthro = currArray[:1250], currArray[1250:]
+                left_anthro = self.normalize(left_anthro, "leftAnthro")
+                right_anthro = self.normalize(right_anthro, "rightAnthro")
+                currArray = np.vstack((left_anthro, right_anthro))
+
+                anthro = np.vstack((anthro, currArray))
+            
+
         return anthro
 
     # extract both hrir_pos and anthro for all subjects in subjects
     def extractData(self, subjects, dataType, doNormalize=False):
-        anthro = self.extractSingleAnthro(subjects[0], True)
-        hrir = self.extractSingleHRIR(subjects[0], False, dataType)
-
         if doNormalize:
-            left_anthro, right_anthro = anthro[:1250], anthro[1250:]
-            left_hrir, right_hrir = hrir[:1250], hrir[1250:]
-            pos = self.extractSinglePos(subjects[0])
+            comb_hrir = 0
+            hrir_pos = 0
+            anthro = 0
 
-            left_anthro = self.normalize(left_anthro, "leftAnthro")
-            right_anthro = self.normalize(right_anthro, "rightAnthro")
-            left_hrir = self.normalize(left_hrir, "leftHRTF")
-            right_hrir = self.normalize(right_hrir, "rightHRTF")
-            # pos = self.normalize(pos, "pos")
-
-            comb_hrir = np.vstack((left_hrir, right_hrir))
-            hrir_pos = np.hstack((comb_hrir, pos))
-            anthro = np.vstack((left_anthro, right_anthro))
-
-            print("pos", len(pos), len(pos[0]))
-            print("hrir", len(comb_hrir), len(comb_hrir[0]))
-            print("hrir_pos", len(hrir_pos), len(hrir_pos[0]))
-
-
-            for subject in subjects[1:]:
+            for subject in subjects:
                 currHrirArray = self.extractSingleHRIR(subject, False, dataType)
                 currPosArray = self.extractSinglePos(subjects[0])
                 currAnthroArray = self.extractSingleAnthro(subject, True)
@@ -181,12 +179,13 @@ class InputProcessing:
                 new_comb_hrir = np.vstack((curr_left_hrir, curr_right_hrir))
                 new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
                 new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
-
-                comb_hrir = np.vstack((new_comb_hrir, comb_hrir))
-                hrir_pos = np.vstack((new_hrir_pos, hrir_pos))
-                anthro = np.vstack((new_anthro, anthro))
+                
+                comb_hrir = new_comb_hrir if type(comb_hrir) == int else np.vstack((new_comb_hrir, comb_hrir))
+                hrir_pos = new_hrir_pos if type(hrir_pos) == int else np.vstack((new_hrir_pos, hrir_pos))
+                anthro = new_anthro if type(anthro) == int else np.vstack((new_anthro, anthro))
 
         else:
+            anthro = self.extractSingleAnthro(subjects[0], True)
             hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
             # get first anthro vector
             for subject in subjects[1:]:
@@ -194,8 +193,8 @@ class InputProcessing:
                 currAnthroArray = self.extractSingleAnthro(subject, True)
                 hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
                 anthro = np.vstack((anthro, currAnthroArray))
-        print("fin_hrir", len(hrir_pos), len(hrir_pos[0]))
-        print("fin_anthro", len(anthro), len(anthro[0]))
+        print("hrir", len(hrir_pos), len(hrir_pos[0]))
+        print("anthro", len(anthro), len(anthro[0]))
         return hrir_pos, anthro
 
     # perform FFT on data
