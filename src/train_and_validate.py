@@ -298,15 +298,90 @@ class ModelTrainer:
         plt.title(f"Center HRIR Plot for subject {subject} at position {position}")
         plt.show()
         plt.close()
-    def plotHRTF(subject, position):
-        hrtf = InputProcessing().extractSingleHRIR(subject, "HRTF")
+    def plotHRTF(self, position):
+        hrtf = InputProcessing().extractSingleHRIR(position, False, "HRTF")
         hrtf_plot = plt.figure()
         print(len(hrtf), len(hrtf[0]))
-        plt.plot(range(len(hrtf[:1250][position])), hrtf[:1250][position], label = "left hrir")
-        plt.plot(range(len(hrtf[1250:][position])), hrtf[1250:][position], label = "right hrir")
+        plt.plot(range(len(hrtf[:1250][0])), hrtf[:1250][0], label = "left hrtf")
+        plt.plot(range(len(hrtf[1250:][0])), hrtf[1250:][0], label = "right hrtf")
         plt.legend(loc="upper right")
         plt.ylabel("HRTF")
         plt.xlabel("Frequency")
-        plt.title(f"Center HRTF Plot for subject {subject} at position {position}")
+        plt.title(f"HRTF Plot for subject {position}")
         plt.show()
         plt.close()
+
+        hrtf[:1250] = InputProcessing().normalize(hrtf[:1250], "leftHRTF")
+        hrtf[1250:] = InputProcessing().normalize(hrtf[1250:], "rightHRTF")
+        norm_hrtf_plot = plt.figure()
+        print(len(hrtf), len(hrtf[0]))
+        plt.plot(range(len(hrtf[:1250][0])), hrtf[:1250][0], label = "left norm hrtf")
+        plt.plot(range(len(hrtf[1250:][0])), hrtf[1250:][0], label = "right norm hrtf")
+        plt.legend(loc="upper right")
+        plt.ylabel("HRTF")
+        plt.xlabel("Frequency")
+        plt.title(f"Normalized HRTF Plot for subject {position}")
+        plt.show()
+        plt.close()
+
+
+        # hrtf, anthro = InputProcessing().extractData(self.validSubjects, "HRTF", False)
+        # norm_hrtf, norm_anthro = InputProcessing().extractData(self.validSubjects, "HRTF", True)
+
+        # left_hrtf = 0
+        # right_hrtf = 0
+        # norm_left_hrtf = 0
+        # norm_right_hrtf = 0
+        # index = 0
+        # for subject in self.validSubjects:
+        #     start = 2500*index
+        #     mid = start + 1250
+        #     end = mid + 1250
+
+        #     left_hrtf = hrtf[start:mid] if type(left_hrtf) == int else np.vstack((left_hrtf, hrtf[start:mid]))
+        #     right_hrtf = hrtf[mid:end] if type(right_hrtf) == int else np.vstack((right_hrtf, hrtf[mid:end]))
+        #     norm_left_hrtf = norm_hrtf[start:mid] if type(norm_left_hrtf) == int else np.vstack((norm_left_hrtf, norm_hrtf[start:mid]))
+        #     norm_right_hrtf = norm_hrtf[mid:end] if type(norm_right_hrtf) == int else np.vstack((norm_right_hrtf, norm_hrtf[mid:end]))
+        
+        #     index += 1
+        
+        # left_hrtf_plot = plt.figure()
+        # plt.hist(left_hrtf[:, position], bins=35, edgecolor='black')
+        # plt.xlabel('HRTF')
+        # plt.ylabel('Occurrences')
+        # plt.title(f'Histogram of Left HRTF at point {position}')
+        # plt.grid(True)
+        # plt.show()
+        # plt.close()
+
+        # left_norm_hrtf_plot = plt.figure()
+        # plt.hist(norm_left_hrtf[:, position], bins=35, edgecolor='black')
+        # plt.xlabel('HRTF')
+        # plt.ylabel('Occurrences')
+        # plt.title(f'Histogram of Norm Left HRTF at point {position}')
+        # plt.grid(True)
+        # plt.show()
+        # plt.close()
+
+        # right_hrtf_plot = plt.figure()
+        # plt.hist(right_hrtf[:, position], bins=35, edgecolor='black')
+        # plt.xlabel('HRTF')
+        # plt.ylabel('Occurrences')
+        # plt.title(f'Histogram of Right HRTF at point {position}')
+        # plt.grid(True)
+        # plt.show()
+        # plt.close()
+
+        # norm_right_hrtf_plot = plt.figure()
+        # plt.hist(norm_right_hrtf[:, position], bins=35, edgecolor='black')
+        # plt.xlabel('HRTF')
+        # plt.ylabel('Occurrences')
+        # plt.title(f'Histogram of Norm Right HRTF at point {position}')
+        # plt.grid(True)
+        # plt.show()
+        # plt.close()
+
+    
+# MT = ModelTrainer("split1", "HRTF", "tanh")
+# MT.plotHRTF(3)
+
