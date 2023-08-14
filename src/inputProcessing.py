@@ -221,6 +221,63 @@ class InputProcessing:
         mean, std = type_mappings.get(data_type, (1, 1))
         normalized_data = (data - mean) / std
         return normalized_data
+    
+    def calcNormMeanSTD(self):
+        HRTF = self.extractSingleHRIR(self.validSubjects[0], False, "HRTF")
+        leftHRTF = HRTF[0:1250]
+        rightHRTF = HRTF[1250:]
+        POS = self.extractSinglePos(self.validSubjects[0])
+        ANTHRO = self.extractSingleAnthro(self.validSubjects[0], False)
+        leftAnthro = ANTHRO[0]
+        rightAnthro = ANTHRO[1]
+
+        # Loop through remaining subjects and accumulate data
+        for subject in self.validSubjects[1:]:
+            currHRTF = self.extractSingleHRIR(subject, False, "HRTF")
+            currLeftHRTF = currHRTF[0:1250]
+            currRightHRTF = currHRTF[1250:]
+            leftHRTF = np.vstack((leftHRTF, currLeftHRTF))
+            rightHRTF = np.vstack((rightHRTF, currRightHRTF))
+            
+            currPOS = self.extractSinglePos(subject)
+            POS = np.vstack((POS, currPOS))
+            
+            currAnthro = self.extractSingleAnthro(subject, False)
+            leftAnthro = np.vstack((leftAnthro, currAnthro[0]))
+            rightAnthro = np.vstack((rightAnthro, currAnthro[1]))
+        
+        leftHRTF = self.normalize(leftHRTF, "leftHRTF")
+        rightHRTF = self.normalize(rightHRTF, "rightHRTF")
+        leftAnthro = self.normalize(leftAnthro, "leftAnthro")
+        rightAnthro = self.normalize(rightAnthro, "rightAnthro")
+
+        # Calculate means and standard deviations
+        left_hrtf_norm_mean= np.mean(leftHRTF , axis=0)
+        print(left_hrtf_norm_mean)
+        left_hrtf_norm_std = np.std(leftHRTF, axis=0)
+        print(left_hrtf_norm_std)
+        right_hrtf_norm_mean = np.mean(rightHRTF, axis=0)
+        print(right_hrtf_norm_mean)
+        right_hrtf_norm_std = np.std(rightHRTF, axis=0)
+        print(right_hrtf_norm_std)
+        # self.pos_mean = np.mean(POS, axis=0)
+        # self.pos_std = np.std(POS, axis=0)
+        left_anthro_norm_mean = np.mean(leftAnthro, axis=0)
+        print(left_anthro_norm_mean)
+        left_anthro_norm_std = np.std(leftAnthro, axis=0)
+        print(left_anthro_norm_std)
+        right_anthro_norm_mean = np.mean(rightAnthro, axis=0)
+        print(right_anthro_norm_mean)
+        right_anthro_norm_std = np.std(rightAnthro, axis=0)
+        print(right_anthro_norm_std)
+
+# IP = InputProcessing()
+# IP.calcNormMeanSTD()
+       
+    
+
+
+
 
 
 # IP = InputProcessing()
