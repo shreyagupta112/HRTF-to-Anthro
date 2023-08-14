@@ -167,22 +167,22 @@ class InputProcessing:
                 currHrirArray = self.extractSingleHRIR(subject, False, dataType)
                 currPosArray = self.extractSinglePos(subjects[0])
                 currAnthroArray = self.extractSingleAnthro(subject, True)
-                curr_left_anthro, curr_right_anthro = currAnthroArray[:1250], currAnthroArray[1250:]
+                # curr_left_anthro, curr_right_anthro = currAnthroArray[:1250], currAnthroArray[1250:]
                 curr_left_hrir, curr_right_hrir = currHrirArray[:1250], currHrirArray[1250:]
 
-                curr_left_anthro = self.normalize(curr_left_anthro, "leftAnthro")
-                curr_right_anthro = self.normalize(curr_right_anthro, "rightAnthro")
+                # curr_left_anthro = self.normalize(curr_left_anthro, "leftAnthro")
+                # curr_right_anthro = self.normalize(curr_right_anthro, "rightAnthro")
                 curr_left_hrir = self.normalize(curr_left_hrir, "leftHRTF")
                 curr_right_hrir = self.normalize(curr_right_hrir, "rightHRTF")
                 # currPosArray = self.normalize(currPosArray, "pos")
 
                 new_comb_hrir = np.vstack((curr_left_hrir, curr_right_hrir))
                 new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
-                new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
+                # new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
                 
-                comb_hrir = new_comb_hrir if type(comb_hrir) == int else np.vstack((new_comb_hrir, comb_hrir))
-                hrir_pos = new_hrir_pos if type(hrir_pos) == int else np.vstack((new_hrir_pos, hrir_pos))
-                anthro = new_anthro if type(anthro) == int else np.vstack((new_anthro, anthro))
+                comb_hrir = new_comb_hrir if type(comb_hrir) == int else np.vstack((comb_hrir, new_comb_hrir))
+                hrir_pos = new_hrir_pos if type(hrir_pos) == int else np.vstack((hrir_pos, new_hrir_pos))
+                anthro = currAnthroArray if type(anthro) == int else np.vstack((anthro, currAnthroArray))
 
         else:
             anthro = self.extractSingleAnthro(subjects[0], True)
@@ -193,8 +193,8 @@ class InputProcessing:
                 currAnthroArray = self.extractSingleAnthro(subject, True)
                 hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
                 anthro = np.vstack((anthro, currAnthroArray))
-        print("hrir", len(hrir_pos), len(hrir_pos[0]))
-        print("anthro", len(anthro), len(anthro[0]))
+        # print("hrir", len(hrir_pos), len(hrir_pos[0]))
+        # print("anthro", len(anthro), len(anthro[0]))
         return hrir_pos, anthro
 
     # perform FFT on data
@@ -285,3 +285,8 @@ class InputProcessing:
 # data = IP.extractSingleAnthro(3, False, False)
 # print(normalized_data)
 # print(data)
+
+# IP = InputProcessing()
+# hrir, anthro = IP.extractData(IP.validSubjects, "HRTF", True)
+# anthro_check = IP.extractAnthro(IP.validSubjects, True)
+# print(np.where(anthro != anthro_check))

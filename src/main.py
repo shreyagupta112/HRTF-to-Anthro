@@ -51,7 +51,7 @@ class Main:
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
-        actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False, True)
+        actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False, False)
         
         model = Model(self.activFunc)
         if self.dataType == "trunc64":
@@ -135,5 +135,5 @@ class Main:
 
 main = Main("split1", "HRTF", "tanh")
 main.train()
-# main.test('saved_model_tanh.pth')
+main.test('saved_model_tanh.pth')
 main.predictAnthro('saved_model_tanh.pth')
