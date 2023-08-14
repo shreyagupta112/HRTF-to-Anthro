@@ -180,9 +180,9 @@ class InputProcessing:
                 new_hrir_pos = np.hstack((new_comb_hrir, currPosArray))
                 new_anthro = np.vstack((curr_left_anthro, curr_right_anthro))
                 
-                comb_hrir = new_comb_hrir if type(comb_hrir) == int else np.vstack((new_comb_hrir, comb_hrir))
-                hrir_pos = new_hrir_pos if type(hrir_pos) == int else np.vstack((new_hrir_pos, hrir_pos))
-                anthro = new_anthro if type(anthro) == int else np.vstack((new_anthro, anthro))
+                comb_hrir = new_comb_hrir if type(comb_hrir) == int else np.vstack((comb_hrir, new_comb_hrir))
+                hrir_pos = new_hrir_pos if type(hrir_pos) == int else np.vstack((hrir_pos, new_hrir_pos))
+                anthro = new_anthro if type(anthro) == int else np.vstack((anthro, new_anthro))
 
         else:
             anthro = self.extractSingleAnthro(subjects[0], True)
