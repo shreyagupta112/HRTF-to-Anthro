@@ -52,6 +52,7 @@ class Main:
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
         actual_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False, True)
+        not_normal_anthro_pred = self.inputProcessing.extractAnthro(validSubjects, False, False)
         
         model = Model(self.activFunc)
         if self.dataType == "trunc64":
@@ -78,6 +79,7 @@ class Main:
             prediction = plt.figure(figsize=(10, 6))
             plt.plot(range(len(anthro_prediction[i])), anthro_prediction[i], label = "prediction")
             plt.plot(range(len(actual_anthro_pred[i])), actual_anthro_pred[i], label = "actual")
+            plt.plot(range(len(not_normal_anthro_pred[i])), not_normal_anthro_pred[i], label = "not normalized")
 
             # Create a table for all prediction and actual anthro values
             anthro_prediction_truncated = [round(y, 3) for y in anthro_prediction[i].tolist()]
@@ -134,6 +136,6 @@ class Main:
 
 
 main = Main("split1", "HRTF", "tanh")
-main.train()
-# main.test('saved_model_tanh.pth')
-main.predictAnthro('saved_model_tanh.pth')
+# main.train()
+main.test('saved_model_tanh.pth')
+# main.predictAnthro('saved_model_tanh.pth')

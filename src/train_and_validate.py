@@ -157,15 +157,15 @@ class ModelTrainer:
 
         train, validation, test = self.DP.readSplits()
 
-        X_test, anthro_test = InputProcessing().extractData(test, self.dataType)
+        X_test, anthro_test = InputProcessing().extractData(test, self.dataType, True)
         X_test = torch.tensor(X_test).to(torch.float32)
         anthro_test = torch.tensor(anthro_test).to(torch.float32)
 
-        X_validation, anthro_validation = InputProcessing().extractData(validation, self.dataType)
+        X_validation, anthro_validation = InputProcessing().extractData(validation, self.dataType, True)
         X_validation = torch.tensor(X_validation).to(torch.float32)
         anthro_validation = torch.tensor(anthro_validation).to(torch.float32) 
 
-        X_train, anthro_train = InputProcessing().extractData(train, self.dataType)
+        X_train, anthro_train = InputProcessing().extractData(train, self.dataType, True)
         X_train = torch.tensor(X_train).to(torch.float32)
         anthro_train = torch.tensor(anthro_train).to(torch.float32)
         
