@@ -50,7 +50,7 @@ class InputProcessing:
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
-        hrir = self.extractSingleHRIR(subject_num, False, dataType)
+        hrir = self.extractSingleHRIR(subject_num, dataType, True)
         pos = self.extractSinglePos(subject_num)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
@@ -131,10 +131,5 @@ class InputProcessing:
             mean = np.mean(data[i])
             std = np.std(data[i])
             norm_data[i] = (data[i] - mean) / std
-            if i == 0:
-                print(np.mean(norm_data[i]))
-                print(np.std(norm_data[i]))
         return norm_data
 
-# IP = InputProcessing()
-# fft = IP.extractSingleHRIR(3, True)
