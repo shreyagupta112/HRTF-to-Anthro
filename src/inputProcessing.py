@@ -15,7 +15,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, plot: bool, dataType: str):
+    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -25,13 +25,15 @@ class InputProcessing:
             row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf = self.FourierTransform(row_left)
-            right_hrtf = self.FourierTransform(row_right)
-        single_hrir = np.vstack((row_left, row_right))
-        single_hrtf = np.vstack((left_hrtf, right_hrtf))
+            if normalize:
+                left_hrtf = self.normalize(left_hrtf)
+        #     right_hrtf = self.FourierTransform(row_right)
+        # single_hrir = np.vstack((row_left, row_right))
+        # single_hrtf = np.vstack((left_hrtf, right_hrtf))
         if dataType == "HRTF":
-            return single_hrtf
+            return left_hrtf
         else:
-            return single_hrir
+            return row_left
 
 
     
@@ -123,6 +125,17 @@ class InputProcessing:
         outputs_mag = abs(outputs_complex) 
         outputs_mag = 20.0*np.log10(outputs_mag)
         return outputs_mag
+
+    def normalize(self, data):
+        norm_data = data
+        for i in range(len(data)):
+            mean = np.mean(data[i])
+            std = np.std(data[i])
+            norm_data[i] = (data[i] - mean) / std
+            if i == 0:
+                print(np.mean(norm_data[i]))
+                print(np.std(norm_data[i]))
+        return norm_data
 
 # IP = InputProcessing()
 # fft = IP.extractSingleHRIR(3, True)
