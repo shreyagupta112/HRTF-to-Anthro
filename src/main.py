@@ -70,7 +70,7 @@ class Main:
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
                 anthro_pred_right = torch.mean(anthro_pred_right, dim=0)
                 anthro_prediction.append(anthro_pred_left)
-                anthro_prediction.append(anthro_pred_right)
+                # anthro_prediction.append(anthro_pred_right)
         
         # plot predicted vs actual for each subject
         for i in range(len(anthro_prediction)):

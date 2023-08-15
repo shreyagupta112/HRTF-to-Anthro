@@ -20,18 +20,18 @@ class InputProcessing:
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
-            dset_right = f[subject]['hrir_r']['raw'] if dataType == "raw" else f[subject]['hrir_r']['trunc_64'] 
+            # dset_right = f[subject]['hrir_r']['raw'] if dataType == "raw" else f[subject]['hrir_r']['trunc_64'] 
             dset_left = f[subject]['hrir_l']['raw'] if dataType == "raw" else f[subject]['hrir_l']['trunc_64']
-            row_right = np.array(dset_right)
+            # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf = self.FourierTransform(row_left)
-            right_hrtf = self.FourierTransform(row_right)
-        single_hrir = np.vstack((row_left, row_right))
-        single_hrtf = np.vstack((left_hrtf, right_hrtf))
+            # right_hrtf = self.FourierTransform(row_right)
+        # single_hrir = np.vstack((row_left, row_right))
+        # single_hrtf = np.vstack((left_hrtf, right_hrtf))
         if dataType == "HRTF":
-            return single_hrtf
+            return left_hrtf
         else:
-            return single_hrir
+            return row_left
 
 
     
@@ -43,9 +43,8 @@ class InputProcessing:
         with h5py.File(file_path, "r") as f:
             dset = f[subject]['srcpos']['trunc_64']
             row = np.array(dset)
-        doubled_row = np.vstack((row, row))
-        
-        return doubled_row
+        # doubled_row = np.vstack((row, row))
+        return row
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
@@ -64,23 +63,23 @@ class InputProcessing:
             dset = f[subject]
             # assume the first 8 meaurements are for left ear
             left_ear = np.array(dset.attrs['D'])[:8]
-            right_ear = np.array(dset.attrs['D'])[8:]
+            # right_ear = np.array(dset.attrs['D'])[8:]
             # assume the first 2 meaurements are for left ear
             left_pinna = np.array(dset.attrs['theta'])[:2]
-            right_pinna = np.array(dset.attrs['theta'])[2:]
+            # right_pinna = np.array(dset.attrs['theta'])[2:]
             
             left_row = np.hstack((left_ear, left_pinna))
-            right_row = np.hstack((right_ear, right_pinna))
+            # right_row = np.hstack((right_ear, right_pinna))
 
             if stack:
                 leftAnthro = np.tile(left_row, (1250, 1))
-                rightAnthro = np.tile(right_row, (1250, 1)) 
-                combinedAnthro = np.vstack((leftAnthro, rightAnthro))
-                return combinedAnthro
+                # rightAnthro = np.tile(right_row, (1250, 1)) 
+                # combinedAnthro = np.vstack((leftAnthro, rightAnthro))
+                return leftAnthro
             
-            combinedAnthro = np.vstack((left_row, right_row))
+            # combinedAnthro = np.vstack((left_row, right_row))
             
-        return combinedAnthro
+        return left_row
      
     # extract HRIR and Pos for all subjects in subjects list
     def extractHrirPos(self, subjects, dataType):
