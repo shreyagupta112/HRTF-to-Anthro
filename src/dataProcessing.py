@@ -102,4 +102,3 @@ class DataProcessing:
         validation = lists[2]
         test = lists[3]
         return train, validation, test
-

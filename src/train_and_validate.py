@@ -299,15 +299,18 @@ class ModelTrainer:
         plt.title(f"Center HRIR Plot for subject {subject} at position {position}")
         plt.show()
         plt.close()
-    def plotHRTF(subject, position):
-        hrtf = InputProcessing().extractSingleHRIR(subject, "HRTF")
+    def plotHRTF(self, subject, position):
+        hrtf = InputProcessing().extractSingleHRIR(subject, "HRTF", True)
         hrtf_plot = plt.figure()
         print(len(hrtf), len(hrtf[0]))
-        plt.plot(range(len(hrtf[:1250][position])), hrtf[:1250][position], label = "left hrir")
-        plt.plot(range(len(hrtf[1250:][position])), hrtf[1250:][position], label = "right hrir")
+        plt.plot(range(len(hrtf[position])), hrtf[position], label = "norm left hrtf")
+        # plt.plot(range(len(hrtf[1250:][position])), hrtf[1250:][position], label = "right hrir")
         plt.legend(loc="upper right")
         plt.ylabel("HRTF")
         plt.xlabel("Frequency")
-        plt.title(f"Center HRTF Plot for subject {subject} at position {position}")
+        plt.title(f"Normalized HRTF Plot for subject {subject} at position {position}")
         plt.show()
         plt.close()
+
+MT = ModelTrainer("split1", "HRTF", "tanh")
+MT.plotHRTF(3, 0)
