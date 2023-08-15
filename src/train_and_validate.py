@@ -60,6 +60,7 @@ class ModelTrainer:
             # propgate forward
             anthro_pred = model.forward(X_train)
             #calculate loss
+            print(len(anthro_pred), len(anthro_train))
             lossAnthroTrain = criterion(anthro_pred, anthro_train)
             #calculate individual losses
             indiv_mse = torch.mean((anthro_pred - anthro_train)**2, dim=0)
