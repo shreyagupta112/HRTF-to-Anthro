@@ -65,10 +65,10 @@ class Main:
             with torch.no_grad():
                 # Make prediction
                 input = torch.tensor(self.inputProcessing.extractHrirPos([subject], self.dataType)).to(torch.float32) 
-                anthro_pred_left = model.forward(input[0:1250])
-                anthro_pred_right = model.forward(input[1250:])
+                anthro_pred_left = model.forward(input)
+                # anthro_pred_right = model.forward(input[1250:])
                 anthro_pred_left = torch.mean(anthro_pred_left, dim=0)
-                anthro_pred_right = torch.mean(anthro_pred_right, dim=0)
+                # anthro_pred_right = torch.mean(anthro_pred_right, dim=0)
                 anthro_prediction.append(anthro_pred_left)
                 # anthro_prediction.append(anthro_pred_right)
         
@@ -92,8 +92,8 @@ class Main:
             plt.legend(loc="upper right")
             plt.ylabel("Measurement")
             plt.xlabel("Anthro Point")
-            index = math.floor(i/2)
-            subjectNum = validSubjects[index]
+            # index = math.floor(i/2)
+            subjectNum = validSubjects[i]
             group = "N/A"
             if subjectNum in trainSubjects:
                 group = "train"
@@ -103,16 +103,20 @@ class Main:
                 group = "test"
             else:
                 group = "N/A"
-            if i % 2 == 0:
-                plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
-                if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
-                    os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
-                prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
-            else:
-                plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear") 
-                if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
-                    os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
-                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
+            plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
+            if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
+                os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
+            prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
+            # if i % 2 == 0:
+            #     plt.title(f"Anthro Prediction for Subject {subjectNum} Left Ear")
+            #     if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
+            #         os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
+            #     prediction.savefig(f'../figures/tanh/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_left_pred.png')
+            # else:
+            #     plt.title(f"Anthro Prediction for Subject {subjectNum} Right Ear") 
+            #     if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}'):
+            #         os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}')
+            #     prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/{group}/{subjectNum}_right_pred.png')
             plt.close()
     
 

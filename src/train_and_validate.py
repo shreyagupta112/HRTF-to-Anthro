@@ -266,8 +266,8 @@ class ModelTrainer:
                     anthro_test_at_i.append(anthro[j][i])
                 ind = 0
                 for subject in splitList:
-                    start = 2500*ind
-                    end = 2500*ind + 2500
+                    start = 1250*ind
+                    end = 1250*ind + 1250
                     prediction = plt.figure()
                     plt.plot(range(len(anthro_eval_at_i[start:end])), anthro_eval_at_i[start:end], label = "prediction")
                     plt.plot(range(len(anthro_test_at_i[start:end])), anthro_test_at_i[start:end], label = "actual")
