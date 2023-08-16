@@ -61,7 +61,7 @@ class Model(nn.Module):
             layer9 = self.TanH(layer9)
 
             Ear_Anthro = self.fc_output(layer9)
-            Ear_Anthro = self.TanH(Ear_Anthro)
+            Ear_Anthro = F.relu(Ear_Anthro)
 
             return Ear_Anthro
 
