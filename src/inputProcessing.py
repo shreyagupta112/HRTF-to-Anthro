@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import math
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Class to extract data from HDF5 file
 class InputProcessing:
@@ -39,18 +40,14 @@ class InputProcessing:
 
     
     # return an array representing the positions of a single subject
-    def extractSinglePos(self, subject_num: int, cart=False, normalize=True):
+    def extractSinglePos(self, subject_num: int, cart=True):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
-
         with h5py.File(file_path, "r") as f:
             dset = f[subject]['srcpos']['trunc_64']
             pos = np.array(dset)
-        # doubled_row = np.vstack((row, row))
         if cart:
             pos = self.sphericalToCartesian(pos)
-        if normalize:
-            pos = self.normalize(pos) 
         return pos
     
     # return an array with hrir and position of a single subject
@@ -112,6 +109,7 @@ class InputProcessing:
         hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)
+        self.plotInput()
         for subject in subjects[1:]:
             currHrirPosArray = self.extractSingleHrirAndPos(subject, dataType)
             currAnthroArray = self.extractSingleAnthro(subject, True)
@@ -141,20 +139,24 @@ class InputProcessing:
     # mostly taken from lab's code base
     def sphericalToCartesian(self, positions):
         "pos should be (#subjs, #positions, [azi, ele, r])"
-        for position in positions:
+        for i in range(len(positions)):
             pos_cart = [0]*3
+            position = positions[i]
             pos_cart[0] = np.multiply(position[2], np.multiply(np.cos(position[1]/180 * math.pi), np.cos(position[0]/180 * math.pi)))
             pos_cart[1] = np.multiply(position[2], np.multiply(np.cos(position[1]/180 * math.pi), np.sin(position[0]/180 * math.pi)))
             pos_cart[2] = np.multiply(position[2], np.sin(position[1]/180 * math.pi))
-            position = pos_cart
+            positions[i] = pos_cart
         return positions
     
-    def plotInput(lines, labels):
-        for i in range(len(lines)):
-            plt.plot(range(i), lines(i), label = labels(i))
-        plt.legend(loc="upper right")
-        plt.ylabel("HRIR")
-        plt.xlabel("Time")
-        plt.title(f"Center HRIR Plot for subject")
-        plt.show()
-        plt.close()
+    def plotInput(self):
+        subject = 3
+        cart = self.extractSinglePos(subject, True)
+        sph = self.extractSinglePos(subject, False)
+        dict = {}
+        dict["spherical"] = []
+        dict["cartesian"] = []
+        for i in range(50):
+            dict["spherical"].append(sph[i])
+            dict["cartesian"].append(cart[i])
+        df = pd.DataFrame(data=dict)
+        df.to_csv('../figures/inputs/positions.csv', index=False)
