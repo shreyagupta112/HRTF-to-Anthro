@@ -16,7 +16,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=False):
+    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -39,7 +39,7 @@ class InputProcessing:
 
     
     # return an array representing the positions of a single subject
-    def extractSinglePos(self, subject_num: int, cart=False, normalize=False):
+    def extractSinglePos(self, subject_num: int, cart=False, normalize=True):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -138,7 +138,7 @@ class InputProcessing:
             norm_data[i] = (data[i] - mean) / std
         return norm_data
 
-    # taken from lab's code base
+    # mostly taken from lab's code base
     def sphericalToCartesian(self, positions):
         "pos should be (#subjs, #positions, [azi, ele, r])"
         for position in positions:
