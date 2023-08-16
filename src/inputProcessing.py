@@ -2,6 +2,7 @@ import h5py
 import os
 import numpy as np
 import sys
+import math
 import matplotlib.pyplot as plt
 
 # Class to extract data from HDF5 file
@@ -38,20 +39,24 @@ class InputProcessing:
 
     
     # return an array representing the positions of a single subject
-    def extractSinglePos(self, subject_num: int):
+    def extractSinglePos(self, subject_num: int, cart=False, normalize=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
         with h5py.File(file_path, "r") as f:
             dset = f[subject]['srcpos']['trunc_64']
-            row = np.array(dset)
+            pos = np.array(dset)
         # doubled_row = np.vstack((row, row))
-        return row
+        if cart:
+            pos = self.sphericalToCartesian(pos)
+        if normalize:
+            pos = self.normalize(pos) 
+        return pos
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
         hrir = self.extractSingleHRIR(subject_num, dataType, True)
-        pos = self.extractSinglePos(subject_num)
+        pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
         return hrir_pos
     
@@ -133,3 +138,23 @@ class InputProcessing:
             norm_data[i] = (data[i] - mean) / std
         return norm_data
 
+    # taken from lab's code base
+    def sphericalToCartesian(self, positions):
+        "pos should be (#subjs, #positions, [azi, ele, r])"
+        for position in positions:
+            pos_cart = [0]*3
+            pos_cart[0] = np.multiply(position[2], np.multiply(np.cos(position[1]/180 * math.pi), np.cos(position[0]/180 * math.pi)))
+            pos_cart[1] = np.multiply(position[2], np.multiply(np.cos(position[1]/180 * math.pi), np.sin(position[0]/180 * math.pi)))
+            pos_cart[2] = np.multiply(position[2], np.sin(position[1]/180 * math.pi))
+            position = pos_cart
+        return positions
+    
+    def plotInput(lines, labels):
+        for i in range(len(lines)):
+            plt.plot(range(i), lines(i), label = labels(i))
+        plt.legend(loc="upper right")
+        plt.ylabel("HRIR")
+        plt.xlabel("Time")
+        plt.title(f"Center HRIR Plot for subject")
+        plt.show()
+        plt.close()

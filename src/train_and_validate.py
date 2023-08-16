@@ -313,4 +313,4 @@ class ModelTrainer:
         plt.close()
 
 MT = ModelTrainer("split1", "HRTF", "tanh")
-MT.plotHRTF(3, 0)
+# MT.plotHRTF(3, 0)
