@@ -26,7 +26,7 @@ class InputProcessing:
             dset_left = f[subject]['hrir_l']['raw'] if dataType == "raw" else f[subject]['hrir_l']['trunc_64']
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
-            left_hrtf = self.FourierTransform(row_left)
+            left_hrtf = self.FourierTransform(row_left)[0]
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
         #     right_hrtf = self.FourierTransform(row_right)
@@ -55,7 +55,9 @@ class InputProcessing:
         hrir = self.extractSingleHRIR(subject_num, dataType, True)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
-        return hrir_pos
+        hrir_total = np.vstack((hrir_pos[0], hrir_pos[8]))
+        # hrir_avg = np.mean(hrir_total, axis = 0)
+        return hrir_total
     
     # Make it zero mean unit variance normalization
     # return an array representing the anthropometric data from a single subject
@@ -73,10 +75,11 @@ class InputProcessing:
             # right_pinna = np.array(dset.attrs['theta'])[2:]
             
             left_row = np.hstack((left_ear, left_pinna))
+
             # right_row = np.hstack((right_ear, right_pinna))
 
             if stack:
-                leftAnthro = np.tile(left_row, (1250, 1))
+                leftAnthro = np.tile(left_row, (2, 1))
                 # rightAnthro = np.tile(right_row, (1250, 1)) 
                 # combinedAnthro = np.vstack((leftAnthro, rightAnthro))
                 return leftAnthro
@@ -98,35 +101,54 @@ class InputProcessing:
     def extractAnthro(self, subjects, stack: bool):
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], stack)
+        pos = self.extractSinglePos(3, True)
+        anthro = np.hstack((anthro, pos))
+        # pos = self.extractSinglePos(subjects[0])
+        # anthro_pos = np.hstack((anthro, pos))
         for subject in subjects[1:]:
-            currArray = self.extractSingleAnthro(subject, stack)
-            anthro = np.vstack((anthro, currArray))
+            currAnthro = self.extractSingleAnthro(subject, stack)
+
+            pos = self.extractSinglePos(subject, True)
+            currAnthro = np.hstack((currAnthro, pos))
+            # currPos = self.extractSinglePos(subject)
+            # currArray = np.hstack((currAnthro, currPos))
+            anthro = np.vstack((anthro, currAnthro))
         return anthro
 
     # extract both hrir_pos and anthro for all subjects in subjects
     def extractData(self, subjects, dataType):
         # get first hrir, pos vector
+        self.plotInput(subjects[0], [0, 8], dataType)
         hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)
-        self.plotInput()
+        # pos = self.extractSinglePos(subjects[0])
+        # anthro_pos = np.hstack((anthro, pos))
         for subject in subjects[1:]:
             currHrirPosArray = self.extractSingleHrirAndPos(subject, dataType)
             currAnthroArray = self.extractSingleAnthro(subject, True)
+            # currPosArray = self.extractSinglePos(subject)
             hrir_pos = np.vstack((hrir_pos, currHrirPosArray))
+            # anthro = np.vstack((anthro, currAnthroArray))
+            # curr_anthro_pos = np.hstack((currAnthroArray, currPosArray))
             anthro = np.vstack((anthro, currAnthroArray))
+        
+        
         return hrir_pos, anthro
 
     # perform FFT on data
     def FourierTransform(self, data):
         #Get the HRTF
         outputs_fft = np.fft.rfft(data, axis=1)
+        n = len(data)
+        freq = np.fft.rfftfreq(n)
+        print(freq)
         # outputs_complex = np.zeros(np.shape(outputs_fft), dtype=outputs_fft.dtype)
         # for (s, h) in enumerate(outputs_fft):
         outputs_complex = outputs_fft/np.max(np.abs(outputs_fft))
         outputs_mag = abs(outputs_complex) 
         outputs_mag = 20.0*np.log10(outputs_mag)
-        return outputs_mag
+        return outputs_mag, freq
 
     def normalize(self, data):
         norm_data = data
@@ -148,7 +170,39 @@ class InputProcessing:
             positions[i] = pos_cart
         return positions
     
-    def plotInput(self):
+    def plotInput(self, subject, positions, datatype):
+        hrir = self.extractSingleHRIR(subject, datatype)
+        freq = self.FourierTransform(hrir)[1]
+        print(hrir)
+        hrir2 = self.extractSingleHrirAndPos(subject, datatype)
+        hrir_plot = plt.figure()
+        # plt.plot(range(len(hrir2[:1250])), hrir2[:1250], label = f"left hrtf average")
+        for position in positions:
+            plt.plot(range(len(freq[:33])), hrir[:1250][position], label = f"left hrtf at position {position}")
+            #plt.plot(range(len(hrir[1250:][position])), hrir[1250:][position], label = f"right hrir at position {position}")
+        plt.legend(loc="lower left")
+        plt.ylabel("HRTF")
+        plt.xlabel("Frequency")
+        plt.title(f"Center HRTF Plot for subject {subject} ")
+        if not os.path.exists(f'../figures/inputs'):
+            os.makedirs(f'../figures/inputs')
+        hrir_plot.savefig(f'../figures/inputs/HRTF_subject_{subject}.png')
+        plt.close()
+
+        pos = self.extractSinglePos(subject)
+        hrir_plot = plt.figure()
+        for position in positions:
+            plt.plot(range(len(pos[position])), pos[position], label = f" position {position}")
+        plt.legend(loc="upper right")
+        plt.ylabel("Pos")
+        plt.xlabel("Time")
+        plt.title(f"Center Pos Plot for subject {subject}")
+        if not os.path.exists(f'../figures/inputs'):
+            os.makedirs(f'../figures/inputs')
+        hrir_plot.savefig(f'../figures/inputs/Pos_subject_{subject}.png')
+        plt.close()
+
+    def plotPositions(self):
         subject = 3
         cart = self.extractSinglePos(subject, True)
         sph = self.extractSinglePos(subject, False)
@@ -160,3 +214,17 @@ class InputProcessing:
             dict["cartesian"].append(cart[i])
         df = pd.DataFrame(data=dict)
         df.to_csv('../figures/inputs/positions.csv', index=False)
+
+# IP = InputProcessing()
+# hrtf, anthro = IP.extractData([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+#                           148, 152, 153, 154, 155, 156, 162, 163, 165], "HRTF")
+
+# # prediction = plt.plot()
+# # plt.scatter(hrtf[::1250, 33], anthro[::1250, 0])
+# # plt.ylabel("Anthro 0")
+# # plt.xlabel("Hrtf 0")
+# # plt.show()
+# # plt.close()
+# print(np.shape(hrtf))
+# print(np.shape(anthro))
