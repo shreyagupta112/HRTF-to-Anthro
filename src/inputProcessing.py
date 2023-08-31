@@ -26,14 +26,14 @@ class InputProcessing:
             dset_left = f[subject]['hrir_l']['raw'] if dataType == "raw" else f[subject]['hrir_l']['trunc_64']
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
-            left_hrtf = self.FourierTransform(row_left)[0]
+            left_hrtf, freq = self.FourierTransform(row_left)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
         #     right_hrtf = self.FourierTransform(row_right)
         # single_hrir = np.vstack((row_left, row_right))
         # single_hrtf = np.vstack((left_hrtf, right_hrtf))
         if dataType == "HRTF":
-            return left_hrtf
+            return left_hrtf, freq
         else:
             return row_left
 
@@ -140,8 +140,10 @@ class InputProcessing:
     def FourierTransform(self, data):
         #Get the HRTF
         outputs_fft = np.fft.rfft(data, axis=1)
-        n = len(data)
-        freq = np.fft.rfftfreq(n)
+        n = len(data[0])
+        sample_rate = 44.1
+        print(n)
+        freq = np.fft.rfftfreq(n, d=1/sample_rate)
         print(freq)
         # outputs_complex = np.zeros(np.shape(outputs_fft), dtype=outputs_fft.dtype)
         # for (s, h) in enumerate(outputs_fft):
@@ -171,17 +173,17 @@ class InputProcessing:
         return positions
     
     def plotInput(self, subject, positions, datatype):
-        hrir = self.extractSingleHRIR(subject, datatype)
-        freq = self.FourierTransform(hrir)[1]
+        hrir, freq = self.extractSingleHRIR(subject, datatype, False)
+        # freq = self.FourierTransform(hrir)[1]
         print(hrir)
-        hrir2 = self.extractSingleHrirAndPos(subject, datatype)
+        # hrir2 = self.extractSingleHrirAndPos(subject, datatype)
         hrir_plot = plt.figure()
         # plt.plot(range(len(hrir2[:1250])), hrir2[:1250], label = f"left hrtf average")
         for position in positions:
-            plt.plot(range(len(freq[:33])), hrir[:1250][position], label = f"left hrtf at position {position}")
+            plt.plot(freq, hrir[position], label = f"left hrtf at position {position}")
             #plt.plot(range(len(hrir[1250:][position])), hrir[1250:][position], label = f"right hrir at position {position}")
         plt.legend(loc="lower left")
-        plt.ylabel("HRTF")
+        plt.ylabel("Magnitude")
         plt.xlabel("Frequency")
         plt.title(f"Center HRTF Plot for subject {subject} ")
         if not os.path.exists(f'../figures/inputs'):
@@ -215,7 +217,7 @@ class InputProcessing:
         df = pd.DataFrame(data=dict)
         df.to_csv('../figures/inputs/positions.csv', index=False)
 
-# IP = InputProcessing()
+IP = InputProcessing()
 # hrtf, anthro = IP.extractData([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
 #                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
 #                           148, 152, 153, 154, 155, 156, 162, 163, 165], "HRTF")
@@ -228,3 +230,5 @@ class InputProcessing:
 # # plt.close()
 # print(np.shape(hrtf))
 # print(np.shape(anthro))
+
+IP.plotInput(3, [0], "HRTF")
