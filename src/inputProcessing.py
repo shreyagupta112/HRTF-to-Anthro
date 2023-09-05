@@ -18,7 +18,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True):
+    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True, peaks=True):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -30,6 +30,22 @@ class InputProcessing:
             left_hrtf, freq = self.FourierTransform(row_left)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
+            if peaks:
+                peak_array = 0
+                for row in left_hrtf:
+                    peaks = self.getPeaks(row, freq)
+                    valleys = self.getPeaks(-row, freq)
+                    currArray = np.zeros(33)
+                    for i in peaks:
+                        currArray[i] = row[i]
+                    for i in valleys:
+                        currArray[i] = row[i]
+                    # if isinstance(peak_array, int):
+                    #     print(currArray)
+                    #     print(peaks)
+                    #     print(freq[peaks])
+                    peak_array = currArray if isinstance(peak_array, int) else np.vstack((peak_array, currArray))
+                return peak_array
         #     right_hrtf = self.FourierTransform(row_right)
         # single_hrir = np.vstack((row_left, row_right))
         # single_hrtf = np.vstack((left_hrtf, right_hrtf))
@@ -37,6 +53,24 @@ class InputProcessing:
             return left_hrtf, freq
         else:
             return row_left
+    
+    def getPeaks(self, row, freq):
+        peaks, _ = find_peaks(row, height=0)
+        if len(peaks) == 1:
+            return peaks
+        frequencies = freq[peaks]
+        currArray = []
+        for i in range(len(frequencies)):
+            if i == 0:
+                if frequencies[i+1] - frequencies[i] > 1:
+                    currArray.append(peaks[i])
+            elif i == len(frequencies) - 1:
+                if frequencies[i] - frequencies[i-1] > 1:
+                    currArray.append(peaks[i])
+            else:
+                if frequencies[i+1] - frequencies[i] > 1 and frequencies[i] - frequencies[i-1] > 1:
+                    currArray.append(peaks[i])
+        return currArray
 
 
     
@@ -58,7 +92,7 @@ class InputProcessing:
         hrir_pos = np.hstack((hrir, pos))
         hrir_total = np.vstack((hrir_pos[0], hrir_pos[8], hrir_pos[16], hrir_pos[24]))
         # hrir_avg = np.mean(hrir_total, axis = 0)
-        return hrir_total
+        return hrir_pos[0:50]
     
     # Make it zero mean unit variance normalization
     # return an array representing the anthropometric data from a single subject
@@ -80,7 +114,7 @@ class InputProcessing:
             # right_row = np.hstack((right_ear, right_pinna))
 
             if stack:
-                leftAnthro = np.tile(left_row, (2, 1))
+                leftAnthro = np.tile(left_row, (50, 1))
                 # rightAnthro = np.tile(right_row, (1250, 1)) 
                 # combinedAnthro = np.vstack((leftAnthro, rightAnthro))
                 return leftAnthro
@@ -143,9 +177,7 @@ class InputProcessing:
         outputs_fft = np.fft.rfft(data, axis=1)
         n = len(data[0])
         sample_rate = 44.1
-        print(n)
         freq = np.fft.rfftfreq(n, d=1/sample_rate)
-        print(freq)
         # outputs_complex = np.zeros(np.shape(outputs_fft), dtype=outputs_fft.dtype)
         # for (s, h) in enumerate(outputs_fft):
         outputs_complex = outputs_fft/np.max(np.abs(outputs_fft))
@@ -174,20 +206,26 @@ class InputProcessing:
         return positions
     
     def plotInput(self, subject, positions, datatype):
-        hrir, freq = self.extractSingleHRIR(subject, datatype, True)
-        # freq = self.FourierTransform(hrir)[1]
-        print(hrir)
-        # hrir2 = self.extractSingleHrirAndPos(subject, datatype)
+        hrir, freq = self.extractSingleHRIR(subject, datatype, True, False)
         hrir_plot = plt.figure()
-        # plt.plot(range(len(hrir2[:1250])), hrir2[:1250], label = f"left hrtf average")
         for position in positions:
             single_hrir = hrir[position]
             plt.plot(freq, single_hrir, label = f"left hrtf at position {position}")
-            peaks, _ = find_peaks(single_hrir, height=0)
-            dips, _ = find_peaks(-single_hrir, height=0)
+            # peaks, _ = find_peaks(single_hrir, height=0)
+            # dips, _ = find_peaks(-single_hrir, height=0)
+            peaks = self.getPeaks(single_hrir, freq)
+            dips = self.getPeaks(-single_hrir, freq)
             plt.plot(freq[peaks], single_hrir[peaks], "x")
             plt.plot(freq[dips], single_hrir[dips], "o")
             #plt.plot(range(len(hrir[1250:][position])), hrir[1250:][position], label = f"right hrir at position {position}")
+        # single_hrir = hrir[0]
+        # plt.plot(freq, single_hrir, label = f"left hrtf at position {0}")
+        # # peaks, _ = find_peaks(single_hrir, height=0)
+        # # dips, _ = find_peaks(-single_hrir, height=0)
+        # peaks = self.getPeaks(single_hrir, freq)
+        # dips = self.getPeaks(-single_hrir, freq)
+        # plt.plot(freq[peaks], single_hrir[peaks], "x")
+        # plt.plot(freq[dips], single_hrir[dips], "o")
         plt.plot(freq, np.zeros_like(hrir[0]), "--", color="gray")
         plt.legend(loc="lower left")
         plt.ylabel("Magnitude")
@@ -211,6 +249,21 @@ class InputProcessing:
         hrir_plot.savefig(f'../figures/inputs/Pos_subject_{subject}.png')
         plt.close()
 
+        peak = self.extractSingleHRIR(subject, datatype)
+
+        peak_plot = plt.figure()
+        for position in positions:
+            currPeak = peak[position]
+            plt.plot(freq, currPeak, label = f"left HRTF peaks at position {position}")
+        plt.legend(loc="lower left")
+        plt.ylabel("Peak exists")
+        plt.xlabel("Frequency")
+        plt.title(f"Frequnecy at which peak exists plot for subject {subject} at positions 0, 8, 16, 24")
+        if not os.path.exists(f'../figures/inputs'):
+            os.makedirs(f'../figures/inputs')
+        peak_plot.savefig(f'../figures/inputs/Peaks_subject_{subject}_4_Pos.png')
+        plt.close()
+
     def plotPositions(self):
         subject = 3
         cart = self.extractSinglePos(subject, True)
@@ -224,7 +277,7 @@ class InputProcessing:
         df = pd.DataFrame(data=dict)
         df.to_csv('../figures/inputs/positions.csv', index=False)
 
-IP = InputProcessing()
+
 # hrtf, anthro = IP.extractData([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
 #                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
 #                           148, 152, 153, 154, 155, 156, 162, 163, 165], "HRTF")
@@ -239,3 +292,5 @@ IP = InputProcessing()
 # print(np.shape(anthro))
 
 #IP.plotInput(3, [0], "HRTF")
+
+# IP.extractSingleHRIR(3, "HRTF")

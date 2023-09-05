@@ -33,6 +33,8 @@ class ModelTrainer:
         print(self.validationSubjects)
         print(self.testSubjects)
 
+        print(np.shape(self.X_train))
+        print(np.shape(self.Y_train))
         # Get training data
         X_train = self.X_train
         anthro_train = self.Y_train
