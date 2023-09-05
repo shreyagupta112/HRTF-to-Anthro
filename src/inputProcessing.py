@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import math
 import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
 import pandas as pd
 
 # Class to extract data from HDF5 file
@@ -55,7 +56,7 @@ class InputProcessing:
         hrir = self.extractSingleHRIR(subject_num, dataType, True)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
-        hrir_total = np.vstack((hrir_pos[0], hrir_pos[8]))
+        hrir_total = np.vstack((hrir_pos[0], hrir_pos[8], hrir_pos[16], hrir_pos[24]))
         # hrir_avg = np.mean(hrir_total, axis = 0)
         return hrir_total
     
@@ -118,7 +119,7 @@ class InputProcessing:
     # extract both hrir_pos and anthro for all subjects in subjects
     def extractData(self, subjects, dataType):
         # get first hrir, pos vector
-        self.plotInput(subjects[0], [0, 8], dataType)
+        self.plotInput(subjects[0], [0, 8, 16, 24], dataType)
         hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)
@@ -173,22 +174,28 @@ class InputProcessing:
         return positions
     
     def plotInput(self, subject, positions, datatype):
-        hrir, freq = self.extractSingleHRIR(subject, datatype, False)
+        hrir, freq = self.extractSingleHRIR(subject, datatype, True)
         # freq = self.FourierTransform(hrir)[1]
         print(hrir)
         # hrir2 = self.extractSingleHrirAndPos(subject, datatype)
         hrir_plot = plt.figure()
         # plt.plot(range(len(hrir2[:1250])), hrir2[:1250], label = f"left hrtf average")
         for position in positions:
-            plt.plot(freq, hrir[position], label = f"left hrtf at position {position}")
+            single_hrir = hrir[position]
+            plt.plot(freq, single_hrir, label = f"left hrtf at position {position}")
+            peaks, _ = find_peaks(single_hrir, height=0)
+            dips, _ = find_peaks(-single_hrir, height=0)
+            plt.plot(freq[peaks], single_hrir[peaks], "x")
+            plt.plot(freq[dips], single_hrir[dips], "o")
             #plt.plot(range(len(hrir[1250:][position])), hrir[1250:][position], label = f"right hrir at position {position}")
+        plt.plot(freq, np.zeros_like(hrir[0]), "--", color="gray")
         plt.legend(loc="lower left")
         plt.ylabel("Magnitude")
         plt.xlabel("Frequency")
-        plt.title(f"Center HRTF Plot for subject {subject} ")
+        plt.title(f"HRTF Plot for subject {subject} at positions 0, 8, 16, 24")
         if not os.path.exists(f'../figures/inputs'):
             os.makedirs(f'../figures/inputs')
-        hrir_plot.savefig(f'../figures/inputs/HRTF_subject_{subject}.png')
+        hrir_plot.savefig(f'../figures/inputs/HRTF_subject_{subject}_4_Pos.png')
         plt.close()
 
         pos = self.extractSinglePos(subject)
@@ -231,4 +238,4 @@ IP = InputProcessing()
 # print(np.shape(hrtf))
 # print(np.shape(anthro))
 
-IP.plotInput(3, [0], "HRTF")
+#IP.plotInput(3, [0], "HRTF")
