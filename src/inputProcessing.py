@@ -12,7 +12,10 @@ class InputProcessing:
 
     # blank constructor
     def __init__(self):
-        pass
+        anthroValues = self.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+                         60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+                          148, 152, 153, 154, 155, 156, 162, 163, 165], False)
+        self.anthroMean = np.mean(anthroValues, axis=0)
 
     # Todo: Normalize HRTF
     # Zero mean and unit variance
@@ -28,6 +31,7 @@ class InputProcessing:
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf, freq = self.FourierTransform(row_left)
+            minHrtf, maxHrtf = self.getHrtfRange(4, freq)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
             if peaks:
@@ -45,15 +49,30 @@ class InputProcessing:
                     #     print(peaks)
                     #     print(freq[peaks])
                     peak_array = currArray if isinstance(peak_array, int) else np.vstack((peak_array, currArray))
-                return peak_array
+                return peak_array[:,minHrtf:maxHrtf]
         #     right_hrtf = self.FourierTransform(row_right)
         # single_hrir = np.vstack((row_left, row_right))
         # single_hrtf = np.vstack((left_hrtf, right_hrtf))
         if dataType == "HRTF":
-            return left_hrtf, freq
+            return left_hrtf[:,minHrtf:maxHrtf], freq
         else:
             return row_left
     
+    def getHrtfRange(self, measurement, freq):
+        if measurement == 10:
+            return 0, 33
+        
+        meanValue = self.anthroMean[measurement]
+        maxRange = (345 / (meanValue)) / 10
+        minRange = (345 / ((meanValue * 2))) / 10
+        ind = []
+        for i in range(len(freq)):
+            print(freq[i])
+            if freq[i] >= minRange and freq[i] <= maxRange:
+                ind.append(i)
+        
+        return min(ind), max(ind) + 1
+
     def getPeaks(self, row, freq):
         peaks, _ = find_peaks(row, height=0)
         if len(peaks) == 1:
@@ -138,15 +157,15 @@ class InputProcessing:
     def extractAnthro(self, subjects, stack: bool):
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], stack)
-        pos = self.extractSinglePos(3, True)
-        anthro = np.hstack((anthro, pos))
+        # pos = self.extractSinglePos(3, True)
+        # anthro = np.hstack((anthro, pos))
         # pos = self.extractSinglePos(subjects[0])
         # anthro_pos = np.hstack((anthro, pos))
         for subject in subjects[1:]:
             currAnthro = self.extractSingleAnthro(subject, stack)
 
-            pos = self.extractSinglePos(subject, True)
-            currAnthro = np.hstack((currAnthro, pos))
+            # pos = self.extractSinglePos(subject, True)
+            # currAnthro = np.hstack((currAnthro, pos))
             # currPos = self.extractSinglePos(subject)
             # currArray = np.hstack((currAnthro, currPos))
             anthro = np.vstack((anthro, currAnthro))
@@ -296,3 +315,17 @@ class InputProcessing:
 #IP.plotInput(3, [0], "HRTF")
 
 # IP.extractSingleHRIR(3, "HRTF")
+
+IP = InputProcessing()
+# anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+#                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
+# meanValue = np.mean(anthro, axis=0)
+# print(meanValue)
+
+# m, mx = IP.getHrtfRange(4, 2)
+# print(m)
+# print(mx)
+
+Hrtf = IP.extractSingleHRIR(3, "HRTF")
+print(np.shape(Hrtf))
