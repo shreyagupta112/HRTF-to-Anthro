@@ -137,6 +137,6 @@ class Main:
 
 
 main = Main("split1", "HRTF", "relu")
-main.train()
+# main.train()
 main.test('saved_model.pth')
 main.predictAnthro('saved_model.pth')

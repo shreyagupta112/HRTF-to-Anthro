@@ -113,6 +113,8 @@ class InputProcessing:
 
             # right_row = np.hstack((right_ear, right_pinna))
 
+            left_row = np.array(dset.attrs['D'])[4]
+
             if stack:
                 leftAnthro = np.tile(left_row, (50, 1))
                 # rightAnthro = np.tile(right_row, (1250, 1)) 
