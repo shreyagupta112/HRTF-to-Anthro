@@ -20,7 +20,7 @@ class Model(nn.Module):
     def __init__(self, activationFunction="relu",
                  hrir_pos=36, 
                  h1=40, h2=50, h3=60, h4=70, h5=80, h6=65, h7=45, h8=25, h9=15,
-                 ear_anthro=1):
+                 ear_anthro=10):
         super().__init__() # instantiate our nn.Module
         self.actfunc = activationFunction
         #Connect model

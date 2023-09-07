@@ -183,14 +183,17 @@ class ModelTrainer:
         criterion = nn.MSELoss()
         
         # lossTest = self.createTestPlot(model, criterion, "test", test, X_test, anthro_test)
-
         # validationTest = self.createTestPlot(model, criterion, "validation", validation, X_validation, anthro_validation) 
-
         # trainTest = self.createTestPlot(model, criterion, "train", train, X_train, anthro_train)
 
-        self.createPredictionPlotSingleAnthro(model, "train", X_train, anthro_train)
-        self.createPredictionPlotSingleAnthro(model, "validation", X_validation, anthro_validation)
-        self.createPredictionPlotSingleAnthro(model, "test", X_test, anthro_test)
+        if len(anthro_train[0]) == 1:
+            self.createPredictionPlotSingleAnthro(model, "train", X_train, anthro_train)
+            self.createPredictionPlotSingleAnthro(model, "validation", X_validation, anthro_validation)
+            self.createPredictionPlotSingleAnthro(model, "test", X_test, anthro_test)
+        else:
+            self.createPredictionPlot(model, "train", X_train, anthro_train)
+            self.createPredictionPlot(model, "validation", X_validation, anthro_validation)
+            self.createPredictionPlot(model, "test", X_test, anthro_test)
 
         # return lossTest, validationTest, trainTest
 
@@ -208,13 +211,26 @@ class ModelTrainer:
                 for j in range(len(anthro_eval)):
                     anthro_eval_at_i.append(anthro_eval[j][i])
                     anthro_train_at_i.append(anthro[j][i])
+                
+                block_size = 50
+                subjects = len(anthro_eval_at_i) // block_size
+                average = []
+                for j in range(subjects):
+                    block = np.array(anthro_eval_at_i[j * block_size: (j + 1) * block_size])
+                    avg = np.mean(block, axis=0)
+                    for _ in range(block_size):
+                        average.append(avg)
+                average = torch.tensor(average)
+                
+
                 plt.plot(range(len(anthro_eval_at_i)), anthro_eval_at_i, label = "prediction")
                 plt.plot(range(len(anthro_train_at_i)), anthro_train_at_i, label = "actual")
+                plt.plot(range(len(average)), average, label = "average", color="red")
                 plt.legend(loc="upper right")
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{i}_{dataset}_pred.png')
+                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/anthroPredictions/group/{i}_{dataset}_pred.png')
                 plt.close()
 
     def createPredictionPlotSingleAnthro(self, model, dataset, hrtf, anthro):
@@ -238,7 +254,7 @@ class ModelTrainer:
             plt.ylabel("Measurement")
             plt.xlabel("HRIR")
             plt.title(f"Anthro Prediction for measurement{4}")
-            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{4}_{dataset}_pred.png')
+            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/anthroPredictions/single/{4}_{dataset}_single__pred.png')
             plt.close()
 
     
