@@ -31,7 +31,7 @@ class InputProcessing:
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf, freq = self.FourierTransform(row_left)
-            minHrtf, maxHrtf = self.getHrtfRange(10, freq)
+            minHrtf, maxHrtf = self.getHrtfRange(9, freq)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
             if peaks:
@@ -131,7 +131,7 @@ class InputProcessing:
 
             # right_row = np.hstack((right_ear, right_pinna))
 
-            left_row = np.array(dset.attrs['D'])[4]
+            left_row = np.array(dset.attrs['D'])[9]
 
             if stack:
                 leftAnthro = np.tile(left_row, (50, 1))
@@ -326,5 +326,5 @@ IP = InputProcessing()
 # print(m)
 # print(mx)
 
-Hrtf = IP.extractSingleHRIR(3, "HRTF")
-print(Hrtf)
+Hrtf, freq = IP.extractSingleHRIR(3, "HRTF")
+print(np.shape(Hrtf))
