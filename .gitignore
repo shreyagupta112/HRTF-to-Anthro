@@ -9,3 +9,5 @@ src/network/test.py
 
 # Ignore test split file
 src/splitData.txt
+
+./figures/*

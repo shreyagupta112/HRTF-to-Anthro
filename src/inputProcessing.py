@@ -31,7 +31,7 @@ class InputProcessing:
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf, freq = self.FourierTransform(row_left)
-            minHrtf, maxHrtf = self.getHrtfRange(4, freq)
+            minHrtf, maxHrtf = self.getHrtfRange(10, freq)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
             if peaks:
@@ -62,12 +62,11 @@ class InputProcessing:
         if measurement == 10:
             return 0, 33
         
-        meanValue = self.anthroMean[measurement]
+        meanValue = self.anthroMean
         maxRange = (345 / (meanValue)) / 10
         minRange = (345 / ((meanValue * 2))) / 10
         ind = []
         for i in range(len(freq)):
-            print(freq[i])
             if freq[i] >= minRange and freq[i] <= maxRange:
                 ind.append(i)
         
@@ -132,7 +131,7 @@ class InputProcessing:
 
             # right_row = np.hstack((right_ear, right_pinna))
 
-            left_row = np.array(dset.attrs['D'])[4]
+            left_row = np.array(dset.attrs['D'])[2]
 
             if stack:
                 leftAnthro = np.tile(left_row, (50, 1))
@@ -174,7 +173,7 @@ class InputProcessing:
     # extract both hrir_pos and anthro for all subjects in subjects
     def extractData(self, subjects, dataType):
         # get first hrir, pos vector
-        self.plotInput(subjects[0], [0, 8, 16, 24], dataType)
+        # self.plotInput(subjects[0], [0, 8, 16, 24], dataType)
         hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)
@@ -316,16 +315,16 @@ class InputProcessing:
 
 # IP.extractSingleHRIR(3, "HRTF")
 
-IP = InputProcessing()
-# anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-#                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
-# meanValue = np.mean(anthro, axis=0)
-# print(meanValue)
+# IP = InputProcessing()
+# # anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+# #                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+# #                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
+# # meanValue = np.mean(anthro, axis=0)
+# # print(meanValue)
 
-# m, mx = IP.getHrtfRange(4, 2)
-# print(m)
-# print(mx)
+# # m, mx = IP.getHrtfRange(4, 2)
+# # print(m)
+# # print(mx)
 
-Hrtf = IP.extractSingleHRIR(3, "HRTF")
-print(np.shape(Hrtf))
+# Hrtf = IP.extractSingleHRIR(3, "HRTF")
+# print(np.shape(Hrtf))

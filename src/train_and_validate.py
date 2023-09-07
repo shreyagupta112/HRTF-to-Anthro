@@ -286,7 +286,7 @@ class ModelTrainer:
             plt.ylabel("Measurement")
             plt.xlabel("HRIR")
             plt.title(f"Anthro Prediction for measurement{4}")
-            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{4}_test_pred.png')
+            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{3}_test_pred.png')
             plt.close()
 
         with torch.no_grad():
@@ -310,7 +310,7 @@ class ModelTrainer:
             plt.xlabel("HRIR")
             plt.title(f"Anthro Prediction for measurement{4}")
             
-            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{4}_train_pred.png')
+            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{3}_train_pred.png')
             plt.close()
         with torch.no_grad():
             anthro_eval = model.forward(X_validation)
@@ -332,7 +332,7 @@ class ModelTrainer:
             plt.ylabel("Measurement")
             plt.xlabel("HRIR")
             plt.title(f"Anthro Prediction for measurement{4}")
-            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{4}_valid_pred.png')
+            prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/{3}_valid_pred.png')
             plt.close()
 
 
