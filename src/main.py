@@ -36,9 +36,9 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/test')
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/train')
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/validation')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/test')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/train')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/validation')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
@@ -139,4 +139,4 @@ class Main:
 main = Main("split1", "HRTF", "relu")
 main.train()
 main.test('saved_model.pth')
-main.predictAnthro('saved_model.pth')
+# main.predictAnthro('saved_model.pth')

@@ -21,7 +21,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True, peaks=True):
+    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True, peaks=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -105,7 +105,7 @@ class InputProcessing:
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
-        hrir = self.extractSingleHRIR(subject_num, dataType, True)
+        hrir, freq = self.extractSingleHRIR(subject_num, dataType, True)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
         hrir_total = np.vstack((hrir_pos[0], hrir_pos[8], hrir_pos[16], hrir_pos[24]))
@@ -131,7 +131,7 @@ class InputProcessing:
 
             # right_row = np.hstack((right_ear, right_pinna))
 
-            left_row = np.array(dset.attrs['D'])[2]
+            left_row = np.array(dset.attrs['D'])[4]
 
             if stack:
                 leftAnthro = np.tile(left_row, (50, 1))
@@ -315,16 +315,16 @@ class InputProcessing:
 
 # IP.extractSingleHRIR(3, "HRTF")
 
-# IP = InputProcessing()
-# # anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-# #                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-# #                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
-# # meanValue = np.mean(anthro, axis=0)
-# # print(meanValue)
+IP = InputProcessing()
+# anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
+#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
+#                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
+# meanValue = np.mean(anthro, axis=0)
+# print(meanValue)
 
-# # m, mx = IP.getHrtfRange(4, 2)
-# # print(m)
-# # print(mx)
+# m, mx = IP.getHrtfRange(4, 2)
+# print(m)
+# print(mx)
 
-# Hrtf = IP.extractSingleHRIR(3, "HRTF")
-# print(np.shape(Hrtf))
+Hrtf = IP.extractSingleHRIR(3, "HRTF")
+print(Hrtf)
