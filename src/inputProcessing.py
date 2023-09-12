@@ -31,7 +31,7 @@ class InputProcessing:
             # row_right = np.array(dset_right)
             row_left = np.array(dset_left)
             left_hrtf, freq = self.FourierTransform(row_left)
-            minHrtf, maxHrtf = self.getHrtfRange(4, freq)
+            minHrtf, maxHrtf = self.getHrtfRange(10, freq)
             if normalize:
                 left_hrtf = self.normalize(left_hrtf)
             if peaks:
@@ -298,34 +298,3 @@ class InputProcessing:
         df = pd.DataFrame(data=dict)
         df.to_csv('../figures/inputs/positions.csv', index=False)
 
-
-# hrtf, anthro = IP.extractData([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-#                           148, 152, 153, 154, 155, 156, 162, 163, 165], "HRTF")
-
-# # prediction = plt.plot()
-# # plt.scatter(hrtf[::1250, 33], anthro[::1250, 0])
-# # plt.ylabel("Anthro 0")
-# # plt.xlabel("Hrtf 0")
-# # plt.show()
-# # plt.close()
-# print(np.shape(hrtf))
-# print(np.shape(anthro))
-
-#IP.plotInput(3, [0], "HRTF")
-
-# IP.extractSingleHRIR(3, "HRTF")
-
-IP = InputProcessing()
-# anthro = IP.extractAnthro([3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
-#                          60, 61, 65, 119, 124, 126, 127, 131, 133, 134, 135, 137, 147,
-#                           148, 152, 153, 154, 155, 156, 162, 163, 165], False)
-# meanValue = np.mean(anthro, axis=0)
-# print(meanValue)
-
-# m, mx = IP.getHrtfRange(4, 2)
-# print(m)
-# print(mx)
-
-Hrtf = IP.extractSingleHRIR(3, "HRTF")
-print(np.shape(Hrtf))
