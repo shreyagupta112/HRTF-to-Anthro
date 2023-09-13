@@ -122,13 +122,13 @@ class ModelTrainer:
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.title("Training Loss")
-        if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}'):
-            os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}')
-        trainLoss.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/error.png')
+        if not os.path.exists(f'../figures/multi-network'):
+            os.makedirs(f'../figures/multi-network')
+        trainLoss.savefig(f'../figures/multi-network/error.png')
         plt.close()
 
         # Plot error for each anthro measurement
-        for i in range(1):
+        for i in range(10):
             anthroMSE = plt.figure()
             mse_train_data = np.array(mse_train_data)
             mse_validation_data = np.array(mse_validation_data)
@@ -144,9 +144,9 @@ class ModelTrainer:
 
             ylabel = "MSE of Anthro Measure " + str(i)
             plotlabel = ylabel + " vs Epoch"
-            if not os.path.exists(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro'):
-                os.makedirs(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro')
-            figlabel = f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/indivAnthro/" + str(i) + ".png"
+            if not os.path.exists(f'../figures/multi-network/indivAnthro'):
+                os.makedirs(f'../figures/multi-network/indivAnthro')
+            figlabel = f"../figures/multi-network/indivAnthro/" + str(i) + ".png"
 
             plt.ylabel(ylabel)
             plt.xlabel("Epoch")
@@ -230,7 +230,9 @@ class ModelTrainer:
                 plt.ylabel("Measurement")
                 plt.xlabel("HRIR")
                 plt.title(f"Anthro Prediction for measurement{i}")
-                prediction.savefig(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/anthroPredictions/group/{i}_{dataset}_pred.png')
+                if not os.path.exists(f'../figures/multi-network/anthroPredictions/group'):
+                    os.makedirs(f'../figures/multi-network/anthroPredictions/group')
+                prediction.savefig(f'../figures/multi-network/anthroPredictions/group/{i}_{dataset}_pred.png')
                 plt.close()
 
     def createPredictionPlotSingleAnthro(self, model, dataset, hrtf, anthro):

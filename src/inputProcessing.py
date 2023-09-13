@@ -21,7 +21,7 @@ class InputProcessing:
     # Zero mean and unit variance
     # return an array representing the hrir from a single subject
     # Plot normalized HRTF and show channel before procedding
-    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True, peaks=True):
+    def extractSingleHRIR(self, subject_num: int, dataType: str, normalize=True, peaks=False):
         subject = 'subject_' + str(subject_num).zfill(3)
         file_path =  os.path.join('..','data','cipic.hdf5')
 
@@ -49,14 +49,14 @@ class InputProcessing:
                     #     print(peaks)
                     #     print(freq[peaks])
                     peak_array = currArray if isinstance(peak_array, int) else np.vstack((peak_array, currArray))
-                return peak_array[:,minHrtf:maxHrtf]
+                return peak_array[:,minHrtf:maxHrtf], freq
         #     right_hrtf = self.FourierTransform(row_right)
         # single_hrir = np.vstack((row_left, row_right))
         # single_hrtf = np.vstack((left_hrtf, right_hrtf))
         if dataType == "HRTF":
             return left_hrtf[:,minHrtf:maxHrtf], freq
         else:
-            return row_left
+            return row_left, freq
     
     def getHrtfRange(self, measurement, freq):
         if measurement == 10:
@@ -106,7 +106,7 @@ class InputProcessing:
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
-        hrir = self.extractSingleHRIR(subject_num, dataType, True)
+        hrir, freq = self.extractSingleHRIR(subject_num, dataType, True)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
         hrir_total = np.vstack((hrir_pos[0], hrir_pos[8], hrir_pos[16], hrir_pos[24]))
@@ -174,7 +174,7 @@ class InputProcessing:
     # extract both hrir_pos and anthro for all subjects in subjects
     def extractData(self, subjects, dataType):
         # get first hrir, pos vector
-        self.plotInput(subjects[0], [0, 8, 16, 24], dataType)
+        # self.plotInput(subjects[0], [0, 8, 16, 24], dataType)
         hrir_pos = self.extractSingleHrirAndPos(subjects[0], dataType)
         # get first anthro vector
         anthro = self.extractSingleAnthro(subjects[0], True)

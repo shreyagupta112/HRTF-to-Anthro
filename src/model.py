@@ -15,14 +15,34 @@ Output Vectors:
     Ear Anthro Measurements: 1 x 10
 
 '''
+class SubNetwork(nn.Module):
+    
+    def __init__(self, input=10, h2=20, h3=30, h4=20, h5=10, output=1):
+        super(SubNetwork, self).__init__() # instantiate our nn.Module
 
+        self.fc1 = nn.Linear(input, h2)
+        self.fc2 = nn.Linear(h2, h3)
+        self.fc3 = nn.Linear(h3, h4)
+        self.fc4 = nn.Linear(h4, h5)
+        self.output = nn.Linear(h5, output)
+
+    def forward(self, input):
+
+        layer1 = F.relu(self.fc1(input))
+        layer2 = F.relu(self.fc2(layer1))
+        layer3 = F.relu(self.fc3(layer2))
+        layer4 = F.relu(self.fc4(layer3))
+
+        output = F.relu(self.output(layer4))
+
+        return output
 class Model(nn.Module):
 
     def __init__(self, activationFunction="relu",
                  hrir_pos=36, 
                  h1=50, h2=70, h3=90, h4=110, h5=130, h6=120, h7=100, h8=10, h9=20, h10=30, h11=20, h12=10, 
                  ear_anthro=1):
-        super().__init__() # instantiate our nn.Module
+        super(Model, self).__init__() # instantiate our nn.Module
         self.actfunc = activationFunction
         #Connect model
         self.fc1 = nn.Linear(hrir_pos, h1)
@@ -89,7 +109,7 @@ class Model(nn.Module):
             layer5 = F.relu(self.fc5(layer4))
             layer6 = F.relu(self.fc6(layer5))
             initial_output = F.relu(self.fc7(layer6))
-
+            print(np.shape(initial_output))
             # Subnetwork's
             output_tensors = []
             numpy_values = []
@@ -101,12 +121,13 @@ class Model(nn.Module):
                 sub_layer5 = F.relu(self.fc12(sub_layer4))
                 i_output = F.relu(self.fc_output(sub_layer5))
                 output_tensors.append(i_output)
+
                 numpy_values.append(i_output.detach().numpy())
             
-            numpy_values = np.array(numpy_values)
-            print(np.shape(numpy_values))
+            # numpy_values = np.array(numpy_values)
+            # print(np.shape(numpy_values))
             
-            output = torch.cat(output_tensors, dim=0)
+            output = torch.cat(output_tensors, dim=1)
 
             # layer1 = F.relu(self.fc1(hrir_l))
             # layer2 = F.relu(self.fc2(layer1))
