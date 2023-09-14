@@ -49,7 +49,7 @@ class ModelTrainer:
         #Choose Adam Optimizer, learning rate
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
         #Set iterations
-        epochs = 80
+        epochs = 100
         train_losses = []
         val_losses = []
         test_losses = []

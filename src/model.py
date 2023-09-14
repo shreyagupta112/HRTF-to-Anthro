@@ -44,6 +44,16 @@ class Model(nn.Module):
                  ear_anthro=1):
         super(Model, self).__init__() # instantiate our nn.Module
         self.actfunc = activationFunction
+        self.subnetwork1 = SubNetwork()
+        self.subnetwork2 = SubNetwork()
+        self.subnetwork3 = SubNetwork()
+        self.subnetwork4 = SubNetwork()
+        self.subnetwork5 = SubNetwork()
+        self.subnetwork6 = SubNetwork()
+        self.subnetwork7 = SubNetwork()
+        self.subnetwork8 = SubNetwork()
+        self.subnetwork9 = SubNetwork()
+        self.subnetwork10 = SubNetwork()
         #Connect model
         self.fc1 = nn.Linear(hrir_pos, h1)
         self.fc2 = nn.Linear(h1, h2)
@@ -121,8 +131,28 @@ class Model(nn.Module):
                 sub_layer5 = F.relu(self.fc12(sub_layer4))
                 i_output = F.relu(self.fc_output(sub_layer5))
                 output_tensors.append(i_output)
-
                 numpy_values.append(i_output.detach().numpy())
+
+            # anthro1 = self.subnetwork1.forward(initial_output[:, 0:10])
+            # output_tensors.append(anthro1)
+            # anthro2 = self.subnetwork1.forward(initial_output[:, 10:20])
+            # output_tensors.append(anthro2)
+            # anthro3 = self.subnetwork1.forward(initial_output[:, 20:30])
+            # output_tensors.append(anthro3)
+            # anthro4 = self.subnetwork4.forward(initial_output[:, 30:40])
+            # output_tensors.append(anthro4)
+            # anthro5 = self.subnetwork1.forward(initial_output[:, 40:50])
+            # output_tensors.append(anthro5)
+            # anthro6 = self.subnetwork1.forward(initial_output[:, 50:60])
+            # output_tensors.append(anthro6)
+            # anthro7 = self.subnetwork1.forward(initial_output[:, 60:70])
+            # output_tensors.append(anthro7)
+            # anthro8 = self.subnetwork1.forward(initial_output[:, 70:80])
+            # output_tensors.append(anthro8)
+            # anthro9 = self.subnetwork1.forward(initial_output[:, 80:90])
+            # output_tensors.append(anthro9)
+            # anthro10 = self.subnetwork1.forward(initial_output[:, 90:100])
+            # output_tensors.append(anthro10)
             
             # numpy_values = np.array(numpy_values)
             # print(np.shape(numpy_values))

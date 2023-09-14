@@ -106,7 +106,7 @@ class InputProcessing:
     
     # return an array with hrir and position of a single subject
     def extractSingleHrirAndPos(self, subject_num: int, dataType):
-        hrir, freq = self.extractSingleHRIR(subject_num, dataType, True)
+        hrir, freq = self.extractSingleHRIR(subject_num, dataType)
         pos = self.extractSinglePos(subject_num, True)
         hrir_pos = np.hstack((hrir, pos))
         hrir_total = np.vstack((hrir_pos[0], hrir_pos[8], hrir_pos[16], hrir_pos[24]))
