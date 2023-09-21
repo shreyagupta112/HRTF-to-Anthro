@@ -14,12 +14,12 @@ class Main:
         self.dataType = dataType
         self.activFunc = activationFunction
         if dataType == "HRTF":
-            self.model = Model(activationFunction, 36)
+            self.model = Model(activationFunction,  36)
         elif dataType == "raw":
             self.model = Model(activationFunction, 203)
         else:
             self.model = Model(activationFunction, 67)
-        summary(self.model, input_size = (1, 1, 36))
+        # summary(self.model, input_size = (1, 1, 36)) # change based on hrir/pos size
         self.inputProcessing = InputProcessing()
         self.dataProcessing = DataProcessing()
         self.validSubjects = [3, 10, 18, 20, 21, 27, 28, 33, 40, 44, 48, 50, 51, 58, 59, 
@@ -36,18 +36,18 @@ class Main:
 
     # This method will test the model
     def test(self, modelPath):
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/test')
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/train')
-        self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/validation')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/test')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/train')
+        # self.deleteFiles(f'../figures/{self.activFunc}/{self.dataType}/{self.splitType}/test/validation')
         mse = self.trainer.testModel(modelPath)
 
         print(mse)
 
     # This method will make a prediction for all valid subjects
     def predictAnthro(self, modelPath):
-        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/train")
-        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/validation")
-        self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/test")
+        # self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/train")
+        # self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/validation")
+        # self.deleteFiles(f"../figures/{self.activFunc}/{self.dataType}/{self.splitType}/predictions/test")
         validSubjects = self.validSubjects
         trainSubjects, validationSubjects, testSubjects = self.dataProcessing.readSplits()
         anthro_prediction = []
@@ -136,7 +136,7 @@ class Main:
 
 
 
-main = Main("split1", "HRTF", "tanh")
+main = Main("split1", "HRTF", "relu")
 main.train()
-main.test('saved_model_tanh.pth')
-main.predictAnthro('saved_model_tanh.pth')
+main.test('saved_model.pth')
+# main.predictAnthro('saved_model.pth')

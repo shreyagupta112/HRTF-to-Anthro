@@ -21,6 +21,7 @@ class DataProcessing:
         trainSize = int(0.7 * total_subjects)
         validSize = int(0.2 * total_subjects)
 
+        np.random.seed(42)
         shuffled_data = np.random.permutation(self.validSubjects)
         
         self.trainSubjects = shuffled_data[:trainSize]
